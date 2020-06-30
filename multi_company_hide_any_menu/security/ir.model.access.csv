@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_menu_line,menu.line.access,model_menu_line,company_wise_hide_menu,1,1,1,1
+access_res_user_hide_menu,res.users.hide.user,base.model_res_users,company_wise_hide_menu,1,0,0,0
