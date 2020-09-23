@@ -8,12 +8,28 @@
             <field name="inherit_id" ref="maintenance.hr_equipment_request_view_form"/>
             <field name="arch" type="xml">
 
+
+                <xpath expr="//header" position="replace">
+                    <header>
+                        <button name="button_stock_picking" string="Validate" type="object" class="oe_highlight"
+                                attrs="{'invisible':[('state','in',('draft','supervisor','done'))]}"/>
+                        <button name="button_draft_supervisor" string="Supervisor Approve" type="object"
+                                class="oe_highlight" attrs="{'invisible':[('state','in',('engineer','done'))]}"/>
+                        <button name="button_supervisor_eng" string="Engineer Confirm" type="object"
+                                class="oe_highlight"
+                                attrs="{'invisible':[('state','in',('draft','engineer','done'))]}"/>
+                        <field name="state" widget="statusbar" statusbar_visible="draft,supervisor,engineer,done"/>
+                    </header>
+
+                </xpath>
+
                 <xpath expr="//field[@name='equipment_id']" position="before">
                     <field name="call_date"/>
                     <field name="bank_name"/>
+                    <field name="model"/>
                     <field name="location"/>
                     <field name="city"/>
-                    <field name="consumed_time"/>
+
 
                 </xpath>
                 <xpath expr="//field[@name='technician_user_id']" position="after">
@@ -22,6 +38,7 @@
                     <field name="work_end_time"/>
                     <field name="depature_time"/>
                     <field name="arrival_time"/>
+                    <field name="consumed_time"/>
                     <field name="status"/>
 
                 </xpath>
@@ -34,10 +51,10 @@
 
 
                 </xpath>
-<!--                <xpath expr="//field[@name='equipment_id']" position="attributes">-->
-<!--                    <attribute name="invisible">1</attribute>-->
+                <!--                <xpath expr="//field[@name='equipment_id']" position="attributes">-->
+                <!--                    <attribute name="invisible">1</attribute>-->
 
-<!--                </xpath>-->
+                <!--                </xpath>-->
                 <xpath expr="//field[@name='close_date']" position="attributes">
                     <attribute name="invisible">1</attribute>
 
@@ -49,11 +66,11 @@
 
                 <xpath expr="//group" position="after">
                     <notebook>
-                        <page string="Spare Part" >
+                        <page string="Spare Part">
                             <field name="spar_part_id" nolabel="1">
                                 <tree editable="top">
-                                    <field name="name"/>
-                                    <field  name="description" />
+                                    <field name="product_id"/>
+                                    <field name="description"/>
                                     <field name="qty"/>
                                 </tree>
                             </field>
@@ -65,93 +82,17 @@
             </field>
         </record>
 
-        <!--      <record id="view_inhereted_account_bill_form" model="ir.ui.view">-->
-        <!--            <field name="name">account</field>-->
-        <!--            <field name="model">account.invoice</field>-->
-        <!--            <field name="inherit_id" ref="account.invoice_supplier_form"/>-->
-        <!--            <field name="arch" type="xml">-->
+        <record id="view_inhereted_hr_employee_form" model="ir.ui.view">
+            <field name="name">hr employee</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="location_id" string="Related Location"/>
+                </xpath>
 
-
-        <!--                 <xpath expr="//field[@name='partner_id']" position="before">-->
-        <!--&lt;!&ndash;                     <field name="job_order_id" string="Job NO" readonly="True" attrs="{'invisible': [('job_order_id', '==', False)]}"/>&ndash;&gt;-->
-        <!--                     <field name="contarct_id" string="Contract No" readonly='True' attrs="{'invisible': [('contarct_id', '==', False)]}" />-->
-        <!--                     <field name="vehicles_no" string="Vehicles_no" readonly="True" attrs="{'invisible': [('vehicles_no', '==', False)]}"/>-->
-
-        <!--				 </xpath>-->
-
-        <!--            </field>-->
-        <!--      </record>-->
-        <!--      &lt;!&ndash; Inherit Fleet Vehicles Form View to Modify it &ndash;&gt;-->
-        <!--        <record id="fleet_inherit_vehicle_view_form" model="ir.ui.view">-->
-        <!--            <field name="name">fleet vehicle</field>-->
-        <!--            <field name="model">fleet.vehicle</field>-->
-        <!--            <field name="inherit_id" ref="fleet.fleet_vehicle_view_form"/>-->
-        <!--            <field name="arch" type="xml">-->
-
-
-        <!--                <xpath expr="//field[@name='location']" position="before">-->
-        <!--                   <field name="vehicles_no" invisible= 'True'/>-->
-        <!--                    <field name="driver_per" />-->
-        <!--                    <field name="vehicles_type"/>-->
-        <!--                    <field name="customer_id"  attrs="{'invisible': [('vehicles_type', '!=', 'to_operate')]}"/>-->
-        <!--                    <field name="shape"/>-->
-        <!--                    <field name="reserved" invisible= "False"/>-->
-
-        <!--                </xpath>-->
-        <!--                <xpath expr="//field[@name='first_contract_date']" position="replace">-->
-        <!--                  <field name="start_date"/>-->
-        <!--                </xpath>-->
-        <!--&lt;!&ndash;                <xpath expr="//field[@name='driver_id']" position="replace">&ndash;&gt;-->
-        <!--&lt;!&ndash;                 <field name="driver"/>&ndash;&gt;-->
-        <!--&lt;!&ndash;                </xpath>&ndash;&gt;-->
-
-        <!--                <xpath expr="//div" position="replace" >-->
-        <!--                        <div class="oe_button_box" name="button_box">-->
-        <!--                        <button name="open_assignation_logs" string="Drivers History" type="object" class="oe_stat_button" icon="fa-history"/>-->
-        <!--                        <button name="return_action_to_open" type="object" class="oe_stat_button" icon="fa-book" context="{'xml_id':'fleet_vehicle_log_contract_action', 'search_default_open': 1}" help="show the contract for this vehicle">-->
-        <!--                            <field name="contract_count" widget="statinfo" string="Contracts"/>-->
-        <!--                        </button>-->
-        <!--                        <button name="act_show_log_cost" type="object" class="oe_stat_button" icon="fa-usd" help="show all the costs for this vehicle" groups="fleet.fleet_group_manager">-->
-        <!--                            <field name="cost_count" widget="statinfo" string="Costs"/>-->
-        <!--                        </button>-->
-        <!--                        <button name="return_action_to_open" type="object" class="oe_stat_button" icon="fa-wrench" context="{'xml_id':'fleet_vehicle_log_services_action'}" help="show the services logs for this vehicle">-->
-        <!--                            <field name="service_count" widget="statinfo" string="Services"/>-->
-        <!--                        </button>-->
-        <!--                        <button name="return_action_to_open" type="object" class="oe_stat_button" icon="fa-flask" context="{'xml_id':'fleet_vehicle_log_fuel_action'}" help="show the fuel logs for this vehicle">-->
-        <!--                            <field name="fuel_logs_count" widget="statinfo" string="Fuel"/>-->
-        <!--                        </button>-->
-        <!--                        <button name="return_action_to_open" type="object" class="oe_stat_button" icon="fa-tachometer" context="{'xml_id':'fleet_vehicle_odometer_action'}" help="show the odometer logs for this vehicle">-->
-        <!--                            <field name="odometer_count" widget="statinfo" string="Odometer"/>-->
-        <!--                        </button>-->
-        <!--                        <button name="toggle_active" type="object" class="oe_stat_button" icon="fa-archive">-->
-        <!--                            <field name="active" widget="boolean_button" options="{&quot;terminology&quot;: &quot;archive&quot;}"/>-->
-        <!--                        </button>-->
-
-        <!--                         <button name='action_view_invoice' class="oe_stat_button" type="object" icon="fa-money" groups="is_fleet_rental_golden_12.group_user">-->
-        <!--                                <field string="Bill" name="invoice_count" widget="statinfo" />-->
-        <!--                         </button >-->
-
-        <!--                    </div>-->
-        <!--                </xpath>-->
-
-
-        <!--                <xpath expr="//field[@name='car_value']" position="before">-->
-
-
-        <!--                    <field name="agreement" attrs="{'invisible': [('vehicles_type', '!=', 'to_operate')]}"/>-->
-        <!--                    <field name="percentage" attrs="{'invisible':['|',('agreement','!=','percentage'),('vehicles_type','!=','to_operate')]}"/>-->
-        <!--&lt;!&ndash;                    <field name="fix" attrs="{'invisible':['|',('agreement','!=','fixed'),('vehicles_type','!=','to_operate')]}"/>&ndash;&gt;-->
-        <!--                    <label for="cost_generated"/>-->
-        <!--                                    <div attrs="{'invisible':['|',('agreement','!=','fixed'),('vehicles_type','!=','to_operate')]}" >-->
-        <!--                                        <field name="cost_frequency" class="oe_inline"-->
-        <!--                                              />-->
-        <!--                                        <field name="cost_generated" style="width:142px;"-->
-        <!--                                        />-->
-        <!--                                    </div>-->
-        <!--                </xpath>-->
-
-        <!--            </field>-->
-        <!--        </record>-->
+            </field>
+        </record>
 
 
     </data>
