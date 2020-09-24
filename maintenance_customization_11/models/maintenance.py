@@ -161,16 +161,6 @@ class Equipments_model(models.Model):
     code = fields.Char(string="code")
 
 
-class Equipments_model(models.Model):
-    _inherit = 'hr.employee'
-    _rec_name = "name"
-    _description = ''
-
-    location_id = fields.Many2one(
-        'stock.location', "Source Location",
-        default=lambda self: self.env.ref('stock.stock_location_stock').id)
-
-
 
 
 

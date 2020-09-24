@@ -1,0 +1,107 @@
+<odoo>
+    <data>
+
+
+        <!-- Form view of custody   -->
+
+        <record id="from_view_custody" model="ir.ui.view">
+            <field name="name">hr custody</field>
+            <field name="model">hr.custody</field>
+            <field name="arch" type="xml">
+                <form string="Custody Information">
+                    <header>
+                        <button name="button_draft_supervisor" string="Supervisor Validation" type="object" class="oe_highlight"
+                                attrs="{'invisible':[('state','in',('supervisor','manager','engineer','supplier','done'))]}"/>
+                       <button name="button_supervisor_manager" string="Manager validation" type="object" class="oe_highlight"
+                                attrs="{'invisible':[('state','in',('draft','manager','engineer','supplier','done'))]}"/>
+                        <button name="button_manager_engineer" string="Engineer Validation" type="object" class="oe_highlight"
+                                attrs="{'invisible':[('state','in',('draft','supervisor','engineer','supplier','done'))]}"/>
+                        <button name="button_engineer_supplier" string="Supplier Validation" type="object" class="oe_highlight"
+                                attrs="{'invisible':[('state','in',('draft','supervisor','supplier','manager','done'))]}"/>
+                        <field name="state" widget="statusbar"
+                               statusbar_visible="draft,supervisor,manager,engineer,supplier,done"/>
+                    </header>
+
+                    <sheet string="Custody Information" style="width:40%">
+                        <group>
+
+                            <group>
+
+                                <field name="employee"/>
+                                <field name="department"/>
+
+                            </group>
+                            <group>
+
+                                <field name="date"/>
+                            </group>
+                        </group>
+
+                        <group>
+                            <notebook>
+                                <page string="Spar Parts">
+                                    <field name="spar_part_id" mode="tree">
+                                        <tree editable="top">
+                                            <field name="product_id"/>
+                                            <field name="description"/>
+                                            <field name="qty"/>
+
+                                        </tree>
+                                    </field>
+                                </page>
+
+                            </notebook>
+                        </group>
+                    </sheet>
+
+                </form>
+            </field>
+
+        </record>
+
+        <!-- Tree view of custody   -->
+        <record id="tree_view_custody" model="ir.ui.view">
+            <field name="name">hr custody tree</field>
+            <field name="model">hr.custody</field>
+            <field name="arch" type="xml">
+                <tree string="custody">
+                    <field name="employee"/>
+                    <field name="department"/>
+                    <field name="date"/>
+
+                </tree>
+            </field>
+        </record>
+
+        <!-- Action of custody -->
+        <record id="action_view_custody" model="ir.actions.act_window">
+            <field name="name">Employee Custody</field>
+            <field name="res_model">hr.custody</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,graph</field>
+
+        </record>
+
+        <!-- Menu of custody   -->
+        <menuitem id="menu_custody_main" name="Custody Clearance" parent="maintenance.menu_maintenance_title"
+                  action="action_view_custody"/>
+
+
+        <record id="view_inhereted_hr_employee_form" model="ir.ui.view">
+            <field name="name">hr employee</field>
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//field[@name='user_id']" position="after">
+                    <field name="location_id" string="Related Location"/>
+                </xpath>
+
+
+            </field>
+        </record>
+
+
+    </data>
+
+
+</odoo>
