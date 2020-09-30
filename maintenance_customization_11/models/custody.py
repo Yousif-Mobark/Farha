@@ -21,7 +21,7 @@ class CustodyClearnce(models.Model):
     _description = "Custody Clearance"
     _rec_name = 'employee'
 
-    department = fields.Many2one('hr.department', string='Department', required='True')
+    department = fields.Many2one('hr.department', string='Department',related='employee.department_id' ,required='True')
     employee = fields.Many2one('hr.employee', string='Employee', required='True')
     date = fields.Datetime(string='Date', default=str(datetime.now()), required='True')
     state = fields.Selection(
@@ -29,7 +29,7 @@ class CustodyClearnce(models.Model):
     spar_part_id = fields.One2many('spar.part.clearance', 'custody_spar_part', string="Spar Part")
     # exhausted = fields.Boolean('Include Exhausted Products', readonly=True, states={'draft': [('readonly', False)]})
     filter = fields.Selection([('none', 'All products'), ('partial', 'Select products manually')], defaut='non' ,required=True, )
-
+    stock_picking = fields.Many2one('stock.picking', string='Stock Picking')
 
 
     @api.multi
@@ -76,8 +76,8 @@ class CustodyClearnce(models.Model):
             'picking_type_id': picking_type_id.id,
             'date_order': self.date,
             'origin': self.employee.name + ' ' + "Custody",
-            'location_dest_id': self.employee.location_id.id or picking_type_id.default_location_dest_id.id,
-            'location_id': picking_type_id.default_location_src_id.id,
+            'location_dest_id':  picking_type_id.default_location_dest_id.id,
+            'location_id': self.employee.location_id.id or picking_type_id.default_location_src_id.id,
             # 'company_id': self.company_id.id,
             'maintenance_request_id': self.id,
             'state': 'assigned',
@@ -97,6 +97,7 @@ class CustodyClearnce(models.Model):
             for move in sorted(moves, key=lambda move: move.date_expected):
                 seq += 5
                 move.sequence = seq
+            order.write({'stock_picking': picking.id})
 
     def action_start(self):
         for inventory in self.filtered(lambda x: x.state not in ('done')):
@@ -154,9 +155,14 @@ class SparPartClearance(models.Model):
     product_id = fields.Many2one('product.product', stirng='Service', required=True)
     product_uom_id = fields.Many2one(
         'uom.uom', 'Product Unit of Measure',)
-    description = fields.Char('Description')
+    description = fields.Char('Description', related="product_id.name")
     product_qty = fields.Float('Requested Qty')
     location_id = fields.Many2one('stock.location', 'Inventoried Location',)
+
+    @api.onchange('product_id')
+    def get_product_decription(self):
+        if self.product_id:
+            self.description = self.product_id.name
 
     @api.multi
     def _prepare_stock_moves(self, picking):
@@ -181,6 +187,7 @@ class SparPartClearance(models.Model):
             'picking_type_id': picking.picking_type_id.id,
             'origin': self.custody_spar_part.employee.name + ' ' + "Custody",
             'warehouse_id': self.custody_spar_part.picking_type_id.warehouse_id.id,
+            'quantity_done': self.product_qty,
             # 'account_analytic_id': self.account_analytic_id.id,
         }
         return self.env['stock.move'].create(template)

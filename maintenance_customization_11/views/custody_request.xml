@@ -18,6 +18,9 @@
                                 attrs="{'invisible':[('state','in',('draft','supervisor','engineer','supplier','done'))]}"/>
                         <button name="button_engineer_supplier" string="Supplier Validation" type="object" class="oe_highlight"
                                 attrs="{'invisible':[('state','in',('draft','supervisor','supplier','manager','done'))]}"/>
+                        <button name="button_suplier_done" string="Confirm" type="object" class="oe_highlight"
+                                attrs="{'invisible':[('state','in',('draft','supervisor','manager','engineer','done'))]}"/>
+
                         <field name="state" widget="statusbar"
                                statusbar_visible="draft,supervisor,manager,engineer,supplier,done"/>
                     </header>
@@ -47,10 +50,16 @@
                                         <tree editable="top">
                                             <field name="product_id"/>
                                             <field name="description"/>
-<!--                                            <field name="location_id"/>-->
+                                            <field name="product_uom_id"/>
                                             <field name="product_qty" string="Quantity"/>
                                         </tree>
                                     </field>
+                                </page>
+                                <page string="Other Info">
+                                    <group>
+                                      <field name="stock_picking" string="Stock Picking" style="width:40%%" readonly="True"/>
+                                    </group>
+
                                 </page>
 
                             </notebook>

@@ -18,7 +18,7 @@ class CustodyRequest(models.Model):
     spar_part_id = fields.One2many('spar.part.request', 'custody_spar_part', string="Spar Part")
     exhausted = fields.Boolean('Include Exhausted Products', readonly=True, states={'draft': [('readonly', False)]})
     # filter = fields.Selection([('none', 'All products'), ('partial', 'Select products manually')], required=True, )
-    # type = fields.Selection([('clearance', 'Clearance'), ('request', 'Request')], required=True, default= 'request')
+    stock_picking = fields.Many2one('stock.picking',string='Stock Picking')
 
 
     @api.multi
@@ -38,14 +38,14 @@ class CustodyRequest(models.Model):
 
     @api.multi
     def button_engineer_supplier(self):
-        if self.spar_part_id:
-            self._create_picking()
-            print(50 * '#')
         if self.state == 'engineer':
             self.state = 'supplier'
 
     @api.multi
     def button_suplier_done(self):
+        if self.spar_part_id:
+            self._create_picking()
+            print(50 * '#')
         if self.state == 'supplier':
             self.state = 'done'
 
@@ -70,7 +70,6 @@ class CustodyRequest(models.Model):
             'origin': self.employee.name + ' ' + "Custody",
             'location_dest_id': self.employee.location_id.id or picking_type_id.default_location_dest_id.id,
             'location_id': picking_type_id.default_location_src_id.id,
-            # 'company_id': self.company_id.id,
             'maintenance_request_id': self.id,
             'state': 'assigned',
         }
@@ -88,10 +87,7 @@ class CustodyRequest(models.Model):
             for move in sorted(moves, key=lambda move: move.date_expected):
                 seq += 5
                 move.sequence = seq
-
-
-
-
+            order.write({'stock_picking': picking.id})
 
 
 class SparPartHr(models.Model):
@@ -101,9 +97,10 @@ class SparPartHr(models.Model):
     custody_spar_part = fields.Many2one('custody.request', string='Custody Spar Part', ondelete='cascade')
     product_id = fields.Many2one('product.product', stirng='Service', required=True)
     product_uom_id = fields.Many2one(
-        'uom.uom', 'Product Unit of Measure',)
+        'product.uom', 'Product Unit of Measure')
     description = fields.Char('Description')
     product_qty = fields.Float('Requested Qty')
+
     # location_id = fields.Many2one('stock.location', 'Inventoried Location',
     #     readonly=True)
     @api.onchange('product_id')
@@ -111,6 +108,7 @@ class SparPartHr(models.Model):
         if self.product_id:
            print("ppppppppppppppppppppp")
            self.description = self.product_id.name
+           self.product_uom_id = self.product_id.uom_id.id
 
     @api.multi
     def _prepare_stock_moves(self, picking):
@@ -135,7 +133,7 @@ class SparPartHr(models.Model):
             'picking_type_id': picking.picking_type_id.id,
             'origin': self.custody_spar_part.employee.name + ' ' + "Custody",
             'warehouse_id': self.custody_spar_part.picking_type_id.warehouse_id.id,
-            # 'account_analytic_id': self.account_analytic_id.id,
+            'quantity_done': self.product_qty,
         }
         return self.env['stock.move'].create(template)
 

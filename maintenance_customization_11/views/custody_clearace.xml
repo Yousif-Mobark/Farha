@@ -65,6 +65,12 @@
                                         </tree>
                                     </field>
                                 </page>
+                                <page string="Other Info">
+                                    <group>
+                                        <field name="stock_picking" string="Stock Picking" style="width:40%%" readonly="True"/>
+                                    </group>
+
+                                </page>
 
                             </notebook>
                         </group>
@@ -80,7 +86,7 @@
             <field name="name">custody clearance tree</field>
             <field name="model">custody.clearance</field>
             <field name="arch" type="xml">
-                <tree string="custody">
+                <tree string="custody"  delete="1">
                     <field name="employee"/>
                     <field name="department"/>
                     <field name="date"/>
