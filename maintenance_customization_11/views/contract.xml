@@ -1,0 +1,88 @@
+<odoo>
+    <data>
+        <record id="view_equipment_contract_form" model="ir.ui.view">
+
+            <field name="name">Equipment Contract</field>
+            <field name="model">equipment.contract</field>
+            <field name="arch" type="xml">
+                <form string="Equipment Contract">
+                    <header>
+                        <button name="button_state" string="Validate" type="object" class="oe_highlight"
+                                attrs="{'invisible':[('state','in',('expired'))]}"/>
+
+
+                        <field name="state" widget="statusbar"
+                               statusbar_visible="draft,valid,expired"/>
+                    </header>
+
+                    <sheet string="Custody Information" style="width:40%">
+
+                        <div class="oe_title">
+                            <label for="name" class="oe_edit_only"/>
+                            <h1>
+                                <field name="name" string="Name" placeholder="Equipment Name"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <group>
+
+                                <field name="start_date"/>
+                                <field name="end_date"/>
+                            </group>
+
+                            <group>
+                                <field name="equipment"/>
+                            </group>
+                        </group>
+
+                        <group>
+                            <notebook>
+
+                                <page string="Info">
+                                    <group>
+                                        <field name="note"/>
+                                    </group>
+
+                                </page>
+
+                            </notebook>
+                        </group>
+                    </sheet>
+
+                </form>
+            </field>
+
+        </record>
+
+        <!-- Tree view of equipment contract -->
+        <record id="tree_view_equipment_contract" model="ir.ui.view">
+            <field name="name">Equipment Contract</field>
+            <field name="model">equipment.contract</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="equipment"/>
+                    <field name="start_date"/>
+                    <field name="end_date"/>
+
+                </tree>
+            </field>
+        </record>
+
+        <!-- Action of equipment contract-->
+        <record id="action_view_equipment_contract" model="ir.actions.act_window">
+            <field name="name">Equipment Contract</field>
+            <field name="res_model">equipment.contract</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form,graph</field>
+
+        </record>
+
+
+        <!-- Menu of equipment contract-->
+        <menuitem id="menu_equipment_contract_main" name="Equipment" parent="maintenance.menu_maintenance_title"/>
+        <menuitem id="menu_equipment_contract" name="Equipment Contract" parent="menu_equipment_contract_main"
+                  action="action_view_equipment_contract"/>
+
+
+    </data>
+</odoo>

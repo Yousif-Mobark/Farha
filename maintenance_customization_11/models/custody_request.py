@@ -103,10 +103,10 @@ class SparPartHr(models.Model):
 
     # location_id = fields.Many2one('stock.location', 'Inventoried Location',
     #     readonly=True)
+
     @api.onchange('product_id')
     def get_product_decription(self):
         if self.product_id:
-           print("ppppppppppppppppppppp")
            self.description = self.product_id.name
            self.product_uom_id = self.product_id.uom_id.id
 

@@ -10,13 +10,17 @@
             <field name="arch" type="xml">
                 <form string="Custody Request">
                     <header>
-                        <button name="button_draft_supervisor" string="Supervisor Validation" type="object" class="oe_highlight"
+                        <button name="button_draft_supervisor" string="Supervisor Validation" type="object"
+                                class="oe_highlight"
                                 attrs="{'invisible':[('state','in',('supervisor','manager','engineer','supplier','done'))]}"/>
-                       <button name="button_supervisor_manager" string="Manager validation" type="object" class="oe_highlight"
+                        <button name="button_supervisor_manager" string="Manager validation" type="object"
+                                class="oe_highlight"
                                 attrs="{'invisible':[('state','in',('draft','manager','engineer','supplier','done'))]}"/>
-                        <button name="button_manager_engineer" string="Engineer Validation" type="object" class="oe_highlight"
+                        <button name="button_manager_engineer" string="Engineer Validation" type="object"
+                                class="oe_highlight"
                                 attrs="{'invisible':[('state','in',('draft','supervisor','engineer','supplier','done'))]}"/>
-                        <button name="button_engineer_supplier" string="Supplier Validation" type="object" class="oe_highlight"
+                        <button name="button_engineer_supplier" string="Supplier Validation" type="object"
+                                class="oe_highlight"
                                 attrs="{'invisible':[('state','in',('draft','supervisor','supplier','manager','done'))]}"/>
                         <button name="button_suplier_done" string="Confirm" type="object" class="oe_highlight"
                                 attrs="{'invisible':[('state','in',('draft','supervisor','manager','engineer','done'))]}"/>
@@ -32,14 +36,14 @@
 
                                 <field name="employee"/>
                                 <field name="department"/>
-<!--                                <field name="filter" widget="radio"/>-->
+                                <!--                                <field name="filter" widget="radio"/>-->
 
                             </group>
                             <group>
 
                                 <field name="date"/>
                                 <field name="picking_type_id"/>
-<!--                                <field name="type"/>-->
+                                <!--                                <field name="type"/>-->
                             </group>
                         </group>
 
@@ -57,7 +61,8 @@
                                 </page>
                                 <page string="Other Info">
                                     <group>
-                                      <field name="stock_picking" string="Stock Picking" style="width:40%%" readonly="True"/>
+                                        <field name="stock_picking" string="Stock Picking" style="width:40%%"
+                                               readonly="True"/>
                                     </group>
 
                                 </page>
@@ -94,12 +99,9 @@
 
         </record>
 
-<!--         Menu of custody Request-->
+        <!--         Menu of custody Request-->
         <menuitem id="menu_custody_request_main" name="Custody Request" parent="menu_custody_main"
                   action="action_view_custody"/>
-
-
-
 
 
     </data>

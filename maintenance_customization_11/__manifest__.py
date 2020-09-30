@@ -13,7 +13,9 @@ This module created to manage maintence services provid by Magal
         'security/ir.model.access.csv',
         'views/maintenance.xml',
         'views/custody_clearace.xml',
-        'views/custody_request.xml'
+        'views/custody_request.xml',
+        'views/manufacturing.xml',
+        'views/contract.xml'
 
 
     ],

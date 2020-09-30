@@ -31,7 +31,7 @@ class MaintenanceRequests(models.Model):
     consumed_time = fields.Char(string="Time Consumed ", default=0)
     work_start_time = fields.Datetime(string="Work Time From", default=str(datetime.now()),
                                       help="Start time of work")
-    work_end_time = fields.Datetime(help="End time of work")
+    work_end_time = fields.Datetime(help="End time of work" ,states={'engineer': [('required', True)]})
     model = fields.Many2one('equipments.model', string="Model", )
     spar_part_id = fields.One2many('spar.part', 'maintenance_request_id', string="Spar Part")
     fault = fields.Text(string='Fault')
@@ -224,7 +224,7 @@ class Spar_part(models.Model):
             'picking_type_id': picking.picking_type_id.id,
             'origin': self.maintenance_request_id.name,
             'warehouse_id': self.maintenance_request_id.picking_type_id.warehouse_id.id,
-            # 'account_analytic_id': self.account_analytic_id.id,
+            'quantity_done': self.qty,
         }
         return self.env['stock.move'].create(template)
 
@@ -244,6 +244,7 @@ class Spar_part(models.Model):
                 val = line._prepare_stock_moves(picking_technicain)
 
         return done
+
 
     @api.multi
     def _prepare_sale_order_line(self, order_id):
@@ -322,66 +323,25 @@ class StockMove(models.Model):
         # })
         return result
 
+class MaintenanceEquipment(models.Model):
+    _inherit = 'maintenance.equipment'
 
-class manufacturingRequests(models.Model):
-    _name = 'manufacturing.request'
-    _description = 'Maintenance Management'
-
-    name = fields.Char(string="Location")
-    product_id = fields.Many2one('product.product', string ="Product", required=True)
-    employee_id = fields.Many2one('hr.employee_id', string="Employee", required=True)
-    department_id = fields.Many2one( 'hr.department', string="Department" , required=True)
-    start_date = fields.Datetime(string='Start Date', default=str(datetime.now()), required='True')
-    end_date = fields.Datetime(string='End Date', default=str(datetime.now()), required='True')
-    defect = fields.Text(string="Defect")
-    picking_stock_id = fields.Many2one('stock.picking', string='Stock Picking',readonly=True)
-    spar_part_id = fields.One2many('spar.manufacturing', 'manufacturing_request_id', string="Spar Part")
     state = fields.Selection(
-        [('draft', 'Draft'), ('inprogress', 'In progress'), ('done', 'Finshed')],
+        [('draft', 'Draft'), ('inprogress', 'In progress'),('done', 'Done')],
         string="State",
         default="draft")
+    location = fields.Selection(
+        [('inkhartoum', 'Khartoum'), ('outkhartoum', 'Out Khartoum')],string="Location",default="inkharto")
 
-    def _get_picking_type(self):
-        company = self.env['res.company']._company_default_get('maintenance.request')
-        pick_in = self.env['stock.picking.type'].search(
-            [('warehouse_id.company_id', '=', company.id), ('code', '=', 'outgoing')], limit=1,
-        )
-        return pick_in[0]
-
-    picking_type_id = fields.Many2one('stock.picking.type', 'Operation Type', default=_get_picking_type, required=True)
-
-
-class SparManufacturing(models.Model):
-    _name = 'spar.manufacturing'
-    _description = ""
-
-    manufacturing_request_id = fields.Many2one('maintenance.request', string='Maintenance Request', ondelete='cascade')
-    product_id = fields.Many2one('product.product', stirng='Service', required=True)
-    description = fields.Char('Description', related='product_id.name')
-    qty = fields.Float('Requested Qty', default=1)
-    product_uom_id = fields.Many2one('product.uom', 'Product Unit of Measure')
-    product_qty = fields.Float('Requested Qty')
-
-
-    @api.onchange('product_id')
-    def get_product_decription(self):
-        if self.product_id:
-            print("ppppppppppppppppppppp")
-            self.description = self.product_id.name
-            self.product_uom_id = self.product_id.uom_id.id
-
+    warranty = fields.Selection([('no', 'No'), ('yes', 'Yes')],string="Has Warranty",default="no")
 
     @api.multi
-    def button_draft_inprogress(self):
-
-        if self.state == 'draft':
+    def _button_state(self):
+        if self.state=='draft':
             self.state = 'inprogress'
-
-
-    @api.multi
-    def button_inprogress_done(self):
-        if self.state == 'inprogress':
+        elif self.state == 'inprogress' :
             self.state = 'done'
+
 
 
 
