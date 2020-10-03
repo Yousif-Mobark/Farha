@@ -8,8 +8,9 @@ from dateutil.relativedelta import relativedelta
 class manufacturingRequests(models.Model):
     _name = 'manufacturing.request'
     _description = 'Maintenance Management'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
 
-    name = fields.Char(string="Location")
+    name = fields.Char(string="name", required=True)
     product_id = fields.Many2one('product.product', string="Product", required=True)
     employee_id = fields.Many2one('hr.employee', string="Employee", required=True)
     department_id = fields.Many2one('hr.department', string="Department", required=True)
@@ -28,6 +29,7 @@ class manufacturingRequests(models.Model):
     def button_draft_inprogress(self):
         if self.state == 'draft':
             self._create_picking_out()
+            self._create_picking_in()
             self.state = 'inprogress'
 
     @api.multi
@@ -57,27 +59,28 @@ class manufacturingRequests(models.Model):
             'origin': self.name,
             'location_dest_id': picking_type_id.default_location_dest_id.id or location.id,
             'location_id': picking_type_id.default_location_src_id.id,
-            # 'company_id': self.company_id.id,
-            # 'maintenance_request_id': self.id,
+
             'state': 'assigned',
         }
 
     @api.model
-    def _prepare_picking_out(self):
+    def _prepare_picking_in(self):
         picking_type_id = self.picking_type_id
         print(picking_type_id)
-        location = self.env.ref('stock.stock_location_customers')
+        location = self.env.ref('stock.stock_location_suppliers')
 
         return {
             'picking_type_id': picking_type_id.id,
             'date_order': self.end_date,
             'origin': self.name,
-            'location_dest_id': picking_type_id.default_location_dest_id.id or location.id,
-            'location_id': picking_type_id.default_location_src_id.id,
+            'location_dest_id': picking_type_id.default_location_src_id.id,
+            'location_id': location.id or picking_type_id.default_location_dest_id.id,
             # 'company_id': self.company_id.id,
             # 'maintenance_request_id': self.id,
             'state': 'assigned',
         }
+
+
 
     @api.multi
     def _create_picking_out(self):
@@ -95,11 +98,48 @@ class manufacturingRequests(models.Model):
 
             if picking_stock.move_lines:
                 print(13 * '1')
-                order.write({'picking_stock_id': picking_stock.id})
+                order.write({'picking_stock_out_id': picking_stock.id})
             else:
                 picking_stock.unlink()
                 print(13 * '2')
 
+    @api.multi
+    def _create_picking_in(self):
+        StockPicking = self.env['stock.picking']
+        for order in self:
+            res_stock = order._prepare_picking_out()
+            picking_stock = StockPicking.create(res_stock)
+            moves_stock = order._prepare_stock_moves_in(picking_stock)
+            order.write({'picking_stock_in_id': picking_stock.id})
+
+
+    @api.multi
+    def _prepare_stock_moves_in(self, picking):
+        """ Prepare the stock moves data for one order line. This function returns a list of
+        dictionary ready to be used in stock.move's create()
+        """
+        location = self.env.ref('stock.stock_location_suppliers')
+        picking_type_id = self.picking_type_id
+        res = []
+        template = {
+            'name': self.product_id.name,
+            'product_id': self.product_id.id,
+            'price_unit': self.product_id.standard_price,
+            'product_uom': self.product_id.uom_id.id,
+            'product_uom_qty': 1,
+            'date': self.start_date,
+            'date_expected': self.end_date,
+            'location_dest_id': picking_type_id.default_location_src_id.id,
+            'location_id': location.id or picking_type_id.default_location_dest_id.id,
+            'picking_id': picking.id,
+            'state': 'draft',
+            'price_unit': self.product_id.standard_price,
+            'picking_type_id': picking.picking_type_id.id,
+            'origin': self.name,
+            # 'warehouse_id': self.manufacturing_request_id.picking_type_id.warehouse_id.id,
+            # 'account_analytic_id': self.account_analytic_id.id,
+        }
+        return self.env['stock.move'].create(template)
 
 
 class SparManufacturing(models.Model):
@@ -118,7 +158,6 @@ class SparManufacturing(models.Model):
     @api.onchange('product_id')
     def get_product_decription(self):
         if self.product_id:
-            print("ppppppppppppppppppppp")
             self.description = self.product_id.name
             self.product_uom_id = self.product_id.uom_id.id
 
@@ -160,6 +199,5 @@ class SparManufacturing(models.Model):
             'picking_type_id': picking.picking_type_id.id,
             'origin': self.manufacturing_request_id.name,
             'warehouse_id': self.manufacturing_request_id.picking_type_id.warehouse_id.id,
-            # 'account_analytic_id': self.account_analytic_id.id,
         }
         return self.env['stock.move'].create(template)

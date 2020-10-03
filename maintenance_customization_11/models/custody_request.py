@@ -6,6 +6,7 @@ from dateutil.relativedelta import relativedelta
 
 class CustodyRequest(models.Model):
     _name = 'custody.request'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = "Custody Request"
     _rec_name = 'employee'
 
@@ -17,7 +18,6 @@ class CustodyRequest(models.Model):
          ('supplier', 'Supplier'), ('done', 'Confirm')], default='draft')
     spar_part_id = fields.One2many('spar.part.request', 'custody_spar_part', string="Spar Part")
     exhausted = fields.Boolean('Include Exhausted Products', readonly=True, states={'draft': [('readonly', False)]})
-    # filter = fields.Selection([('none', 'All products'), ('partial', 'Select products manually')], required=True, )
     stock_picking = fields.Many2one('stock.picking',string='Stock Picking')
 
 
@@ -101,8 +101,7 @@ class SparPartHr(models.Model):
     description = fields.Char('Description')
     product_qty = fields.Float('Requested Qty')
 
-    # location_id = fields.Many2one('stock.location', 'Inventoried Location',
-    #     readonly=True)
+
 
     @api.onchange('product_id')
     def get_product_decription(self):

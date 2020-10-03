@@ -18,6 +18,7 @@ class Equipments_model(models.Model):
 
 class CustodyClearnce(models.Model):
     _name = 'custody.clearance'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
     _description = "Custody Clearance"
     _rec_name = 'employee'
 
