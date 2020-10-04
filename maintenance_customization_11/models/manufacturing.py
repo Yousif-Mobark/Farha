@@ -107,7 +107,7 @@ class manufacturingRequests(models.Model):
     def _create_picking_in(self):
         StockPicking = self.env['stock.picking']
         for order in self:
-            res_stock = order._prepare_picking_out()
+            res_stock = order._prepare_picking_in()
             picking_stock = StockPicking.create(res_stock)
             moves_stock = order._prepare_stock_moves_in(picking_stock)
             order.write({'picking_stock_in_id': picking_stock.id})
@@ -129,8 +129,8 @@ class manufacturingRequests(models.Model):
             'product_uom_qty': 1,
             'date': self.start_date,
             'date_expected': self.end_date,
-            'location_dest_id': picking_type_id.default_location_src_id.id,
-            'location_id': location.id or picking_type_id.default_location_dest_id.id,
+            'location_dest_id':  location.id or picking_type_id.default_location_dest_id.id,
+            'location_id': picking_type_id.default_location_src_id.id ,
             'picking_id': picking.id,
             'state': 'draft',
             'price_unit': self.product_id.standard_price,

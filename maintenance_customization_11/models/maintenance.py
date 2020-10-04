@@ -31,7 +31,7 @@ class MaintenanceRequests(models.Model):
     consumed_time = fields.Char(string="Time Consumed ", default=0)
     work_start_time = fields.Datetime(string="Work Time From", default=str(datetime.now()),
                                       help="Start time of work")
-    work_end_time = fields.Datetime(help="End time of work" ,states={'engineer': [('required', True)]})
+    work_end_time = fields.Datetime(help="End time of work", states={'engineer': [('required', True)]})
     model = fields.Many2one('equipments.model', string="Model", )
     spar_part_id = fields.One2many('spar.part', 'maintenance_request_id', string="Spar Part")
     fault = fields.Text(string='Fault')
@@ -244,7 +244,6 @@ class Spar_part(models.Model):
 
         return done
 
-
     @api.multi
     def _prepare_sale_order_line(self, order_id):
         """ Prepare the stock moves data for one order line. This function returns a list of
@@ -308,13 +307,13 @@ class StockMove(models.Model):
     @api.model
     def create(self, vals):
         result = super(StockMove, self).create(vals)
-        if result.sale_line_id :
+        if result.sale_line_id:
             print(20 * "osman", result.sale_line_id.location_id)
             result.location_id = result.sale_line_id.location_id
-        # self.write({
-        #     'location_id': result.sale_line_id.location_id
-        # })
-        # self.sale_line_id.location_dest_id:
+            # self.write({
+            #     'location_id': result.sale_line_id.location_id
+            # })
+            # self.sale_line_id.location_dest_id:
             print(20 * "osman", result.sale_line_id.location_dest_id)
             result.location_dest_id = result.location_dest_id
         # self.write({
@@ -322,62 +321,78 @@ class StockMove(models.Model):
         # })
         return result
 
+
 class MaintenanceEquipment(models.Model):
     _inherit = 'maintenance.equipment'
 
+
+    # contract_id = fields.Many2one('equipment.contract', string='Contract')
     state = fields.Selection(
-        [('draft', 'Draft'), ('inprogress', 'In progress'),('done', 'Done')],
+        [('draft', 'Draft'), ('inprogress', 'In progress'), ('done', 'Done')],
         string="State",
         default="draft")
     location = fields.Selection(
-        [('inkhartoum', 'Khartoum'), ('outkhartoum', 'Out Khartoum')],string="Location",default="inkhartoum")
+        [('inkhartoum', 'Khartoum'), ('outkhartoum', 'Out Khartoum')], string="Location", default="inkhartoum")
 
-    has_warranty = fields.Selection([('no', 'No'), ('yes', 'Yes')],string="Has Warranty",default="no")
+    has_warranty = fields.Selection([('no', 'No'), ('yes', 'Yes')], string="Has Warranty", default="no")
     warranty_start = fields.Datetime(string='Warranty Start Date')
     warranty_end = fields.Datetime(string='Warranty end Date')
 
     @api.multi
     def button_state(self):
-        if self.state=='draft':
-            self.state = 'inprogress'
-
-        elif self.state == 'inprogress':
-            self.state = 'done'
-
-    @api.model
-    def equipment_warranty_schedule_action(self):
-        print(10 * '89')
-        equipment_object = self.env['maintenance.equipment'].search([('state', '=', 'inprogress')])
-        for record in equipment_object:
-            if record.warranty_end == record.warranty_end:
+        if self.state == 'draft':
+            print(10 * "butom")
+            if self.has_warranty == 'yes':
                 group_manager = self.env.ref('hr.group_hr_manager').id
 
                 # first of all get users
-                record.env.cr.execute(
+                self.env.cr.execute(
                     '''SELECT uid FROM res_groups_users_rel WHERE gid = %s order by uid''' % (group_manager))
                 print("ppppppppppppppppp", group_manager)
                 for fm in list(filter(lambda x: (
-                        record.env['res.users'].sudo().search([('id', '=', x)])), record.env.cr.fetchall())):
+                        self.env['res.users'].sudo().search([('id', '=', x)])), self.env.cr.fetchall())):
                     print("lllllllllllll", fm)
                     vals = {
-                        'activity_type_id': record.env['mail.activity.type'].sudo().search([],
-                                                                                           limit=1).id,
-                        'res_id': record.id,
-                        'res_model_id': record.env['ir.model'].sudo().search([('model', 'like', 'maintenance.equipment')],
-                                                                             limit=1).id,
+                        'activity_type_id': self.env['mail.activity.type'].sudo().search([],
+                                                                                         limit=1).id,
+                        'res_id': self.id,
+                        'res_model_id': self.env['ir.model'].sudo().search(
+                            [('model', '=', 'maintenance.equipment')],
+                            limit=1).id,
                         'user_id': fm[0] or 1,
-                        'summary': " The Contarct of  " + record.name + ' has been exiperd'
+                        'summary': " The Contarct of  " + self.name + ' has been new warranty'
                     }
-                    self.activity_id = self.env['mail.activity'].sudo().create(vals)
+                    self.env['mail.activity'].sudo().create(vals)
+                self.state = 'inprogress'
 
-                    print("000000000000000000000000", self.activity_id)
-                record.state = 'done'
+            elif self.state == 'inprogress':
+                 self.state = 'done'
 
-
-
-
-
-
-
-
-
+# @api.model
+# def equipment_warranty_schedule_action(self):
+#     print(10 * '89')
+#     equipment_object = self.env['maintenance.equipment'].search([('state', '=', 'inprogress')])
+#     for record in equipment_object:
+#         if record.warranty_end == record.warranty_end:
+#             group_manager = self.env.ref('hr.group_hr_manager').id
+#
+#             # first of all get users
+#             record.env.cr.execute(
+#                 '''SELECT uid FROM res_groups_users_rel WHERE gid = %s order by uid''' % (group_manager))
+#             print("ppppppppppppppppp", group_manager)
+#             for fm in list(filter(lambda x: (
+#                     record.env['res.users'].sudo().search([('id', '=', x)])), record.env.cr.fetchall())):
+#                 print("lllllllllllll", fm)
+#                 vals = {
+#                     'activity_type_id': record.env['mail.activity.type'].sudo().search([],
+#                                                                                        limit=1).id,
+#                     'res_id': record.id,
+#                     'res_model_id': record.env['ir.model'].sudo().search([('model', 'like', 'maintenance.equipment')],
+#                                                                          limit=1).id,
+#                     'user_id': fm[0] or 1,
+#                     'summary': " The Contarct of  " + record.name + ' has been exiperd'
+#                 }
+#                 self.activity_id = self.env['mail.activity'].sudo().create(vals)
+#
+#                 print("000000000000000000000000", self.activity_id)
+#             record.state = 'done'

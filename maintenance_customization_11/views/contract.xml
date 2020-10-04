@@ -28,6 +28,7 @@
                                 attrs="{'invisible':[('state','in',('valid'))]}"/>
                         <button name="button_state" string="Quit" type="object" class="oe_highlight"
                                 attrs="{'invisible':[('state','in',('expired'))]}"/>
+                         <button name="create_invoice" string="Create Invoice" type="object" class="oe_highlight"/>
 
                         <field name="state" widget="statusbar"
                                statusbar_visible="draft,valid,expired"/>
@@ -35,29 +36,47 @@
 
                     <sheet string="Custody Information" style="width:40%">
 
-                        <div class="oe_title">
-                            <label for="name" class="oe_edit_only"/>
-                            <h1>
-                                <field name="name" string="Name" placeholder="Equipment Name"/>
-                            </h1>
+                        <div class="oe_button_box"  name="buttons">
+                            <button name='action_view_invoice' class="oe_stat_button" type="object" icon="fa-money" attrs="{'invisible': [('invoice_count', '==', 0)]}">
+                                <field string="Invoice" name="invoice_count" widget="statinfo" />
+                            </button>
+
                         </div>
+
+<!--                        <div class="oe_title">-->
+<!--                            <label for="name" class="oe_edit_only"/>-->
+<!--                            <h1>-->
+<!--                                <field name="name"  placeholder="Equipment Name" nolable="True"/>-->
+<!--                            </h1>-->
+<!--                        </div>-->
                         <group>
                             <group>
-
+                                <field name="partner_id" context="{'default_supplier': False, 'default_customer': True}"/>
                                 <field name="start_date"/>
                                 <field name="end_date"/>
+                                <field name="living_state" widget="radio"/>
+                                <field name="living_cost" attrs="{'invisible':[('living_state','=','no')]}"/>
                             </group>
 
                             <group>
-                                <field name="equipment"/>
-
+                                <field name="cost" required="1"/>
+                                <field name="spar_state" string="Spar Included" widget="radio"/>
                             </group>
                         </group>
 
                         <group>
                             <notebook>
+                                <page string="Spar Parts">
+                                    <field name="equipment" mode="tree">
+                                        <tree editable="top">
+                                            <field name="equipment"/>
+                                            <field name="name"/>
+                                            <field name="location"/>
 
-                                <page string="Information">
+                                        </tree>
+                                    </field>
+                                </page>
+                                <page string="Other Info">
                                     <group>
                                         <field name="note"/>
                                     </group>
@@ -67,6 +86,8 @@
                             </notebook>
                         </group>
                     </sheet>
+
+
                     <div class="oe_chatter">
                         <field name="message_follower_ids" widget="mail_followers"/>
                         <field name="message_ids" widget="mail_thread"/>
