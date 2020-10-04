@@ -13,7 +13,7 @@ class EquipmentsContract(models.Model):
 
     # name = fields.Char(string='name', required=True)
     partner_id = fields.Many2one('res.partner', string='Customer', required=True)
-    equipment = fields.One2many('equipment.equipment', 'equipment_contract_id' , string='Equipment', required='True')
+    equipment = fields.One2many('equipment.equipment', 'equipment_contract_id' , string='Equipment')
     start_date = fields.Datetime(string='Start Date', default=str(datetime.now()), required='True')
     end_date = fields.Datetime(string='Start Date', default=str(datetime.now()), required='True')
     state = fields.Selection(
@@ -29,8 +29,17 @@ class EquipmentsContract(models.Model):
         default="no")
     living_state = fields.Selection([('no', 'No'), ('yes', 'Yes')],string="Living Included",default="no")
     living_cost = fields.Float(string="Contract Cost")
+    equipment_number = fields.Integer(string="Equipment Number",compute='_get_equipment_number' ,store=True)
 
 
+    @api.one
+    @api.depends('equipment')
+    def _get_equipment_number(self):
+        total = 0
+        for rec in self.equipment:
+            print(self.equipment)
+            total += len(rec.equipment)
+        self.equipment_number = total
 
     @api.multi
     def _invoice_count(self):
@@ -70,6 +79,10 @@ class EquipmentsContract(models.Model):
             self.state = 'valid'
         elif self.state == 'valid':
             self.state = 'expired'
+        elif self.state == 'expired':
+            self.state = 'draft'
+
+
 
     @api.multi
     def create_invoice(self):
@@ -137,13 +150,22 @@ class Spar_part(models.Model):
     _name = 'equipment.equipment'
     _description = ""
 
-    equipment_contract_id = fields.Many2one('equipment.contract', string='Equipment', ondelete='cascade')
+    equipment_contract_id = fields.Many2one('equipment.contract', string='Equipment contract', ondelete='cascade')
     equipment = fields.Many2one('maintenance.equipment',  string='Equipment', required='True')
     name = fields.Char('Description', related='equipment.name')
     location = fields.Selection(
         [('inkhartoum', 'Khartoum'), ('outkhartoum', 'Out Khartoum')], string="Location", related='equipment.location')
 
-
+    # @api.multi
+    # @api.onchange('equipment')
+    # def set_contract_id(self):
+    #     id = self.env.ref(self.equipment_contract_id.id)
+    #     if self.equipment_contract_id.id:
+    #         print(self.equipment_contract_id.id, )
+    #         self._cr.execute(
+    #             "update maintenance_equipment set contract_id =%s   where id = %s",
+    #             (self.equipment_contract_id.id, self.equipment.id))
+    #         print(self.equipment.contract_id.id)
 
 
 class CustomerInvoice(models.Model):

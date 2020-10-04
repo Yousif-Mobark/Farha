@@ -26,7 +26,7 @@
                     <header>
                         <button name="button_state" string="Validate" type="object" class="oe_highlight"
                                 attrs="{'invisible':[('state','in',('valid'))]}"/>
-                        <button name="button_state" string="Quit" type="object" class="oe_highlight"
+                        <button name="button_state" string="Renew" type="object" class="oe_highlight"
                                 attrs="{'invisible':[('state','in',('expired'))]}"/>
                          <button name="create_invoice" string="Create Invoice" type="object" class="oe_highlight"/>
 
@@ -61,6 +61,7 @@
                             <group>
                                 <field name="cost" required="1"/>
                                 <field name="spar_state" string="Spar Included" widget="radio"/>
+                                <field name="equipment_number"/>
                             </group>
                         </group>
 

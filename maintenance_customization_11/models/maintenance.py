@@ -32,7 +32,9 @@ class MaintenanceRequests(models.Model):
     work_start_time = fields.Datetime(string="Work Time From", default=str(datetime.now()),
                                       help="Start time of work")
     work_end_time = fields.Datetime(help="End time of work", states={'engineer': [('required', True)]})
-    model = fields.Many2one('equipments.model', string="Model", )
+    model = fields.Many2one('equipments.model', string="Model" )
+    equipment_id = fields.Many2one('maintenance.equipment', string='Equipment', required = True,
+                                   ondelete='restrict', index=True ,domain="[('model','=',model)]")
     spar_part_id = fields.One2many('spar.part', 'maintenance_request_id', string="Spar Part")
     fault = fields.Text(string='Fault')
     cuase = fields.Text(string='Cuase')
@@ -57,6 +59,40 @@ class MaintenanceRequests(models.Model):
                 work_start_time = datetime.strptime(record.work_end_time, '%Y-%m-%d %H:%M:%S')
                 self.consumed_time = abs((work_start_time - work_end_time).days)
 
+    @api.model
+    def equipment_warranty(self):
+        print(10 * '89')
+        # contract_object = self.env['equipment.contract'].search([('state', '=', 'valid')])
+
+        if self.status == 'warranty':
+            # self.equipment_id.warranty_start = self.work_end_time
+            self.equipment_id.write({
+                'warranty_start' : self.work_end_time,
+                'has_warranty': 'yes',
+                'state': 'inprogress'
+            })
+            group_manager = self.env.ref('hr.group_hr_manager').id
+            # first of all get users
+            self.env.cr.execute(
+                '''SELECT uid FROM res_groups_users_rel WHERE gid = %s order by uid''' % (group_manager))
+            print("ppppppppppppppppp", group_manager)
+            for fm in list(filter(lambda x: (
+                    self.env['res.users'].sudo().search([('id', '=', x)])), self.env.cr.fetchall())):
+                print("lllllllllllll", fm)
+                vals = {
+                    'activity_type_id': self.env['mail.activity.type'].sudo().search([],
+                                                                                     limit=1).id,
+                    'res_id': self.equipment_id.id,
+                    'res_model_id': self.env['ir.model'].sudo().search(
+                        [('model', '=', 'maintenance.equipment')],
+                        limit=1).id,
+                    'user_id': fm[0] or 1,
+                    'summary': " The Contarct of  " + self.equipment_id.name + ' has been new warranty'
+                }
+                self.env['mail.activity'].sudo().create(vals)
+
+
+
     @api.multi
     def button_stock_picking(self):
 
@@ -65,6 +101,7 @@ class MaintenanceRequests(models.Model):
             self._create_picking()
             self._create_sale_order()
         if self.state == 'engineer':
+            self.equipment_warranty()
             self.state = 'done'
 
     @api.multi
@@ -174,7 +211,8 @@ class MaintenanceRequests(models.Model):
             print(sale_order.partner_id.name)
             move = order.spar_part_id.create_sale_order_line(sale_order)
             order.write({'sale_order_id': sale_order.id})
-            # order.sale_order_id = sale_order.id
+            if not order.sale_order_id.order_line :
+                order.sale_order_id.unlink()
 
 
 class Spar_part(models.Model):
@@ -251,11 +289,11 @@ class Spar_part(models.Model):
         """
         location = self.env.ref('stock.stock_location_customers')
         for rec in self:
-            if rec.warranty == True:
+            if rec.spar_source == 'stock':
                 rec.location_id = rec.maintenance_request_id.picking_type_id.default_location_src_id.id \
                                   or location.id,
                 rec.location_dest_id = rec.maintenance_request_id.picking_type_id.default_location_dest_id.id or location.id
-            elif rec.warranty == True:
+            elif rec.spar_source == 'technician':
                 rec.location_id = rec.maintenance_request_id.employee_id.location_id.id or location.id
                 rec.location_dest_id = rec.maintenance_request_id.picking_type_id.default_location_dest_id.id or location.id
 
@@ -310,15 +348,9 @@ class StockMove(models.Model):
         if result.sale_line_id:
             print(20 * "osman", result.sale_line_id.location_id)
             result.location_id = result.sale_line_id.location_id
-            # self.write({
-            #     'location_id': result.sale_line_id.location_id
-            # })
-            # self.sale_line_id.location_dest_id:
             print(20 * "osman", result.sale_line_id.location_dest_id)
             result.location_dest_id = result.location_dest_id
-        # self.write({
-        #     'location_dest_id': result.location_dest_id
-        # })
+
         return result
 
 
@@ -326,7 +358,7 @@ class MaintenanceEquipment(models.Model):
     _inherit = 'maintenance.equipment'
 
 
-    # contract_id = fields.Many2one('equipment.contract', string='Contract')
+    contract_id = fields.Many2one('equipment.contract', string='Contract')
     state = fields.Selection(
         [('draft', 'Draft'), ('inprogress', 'In progress'), ('done', 'Done')],
         string="State",
@@ -337,6 +369,7 @@ class MaintenanceEquipment(models.Model):
     has_warranty = fields.Selection([('no', 'No'), ('yes', 'Yes')], string="Has Warranty", default="no")
     warranty_start = fields.Datetime(string='Warranty Start Date')
     warranty_end = fields.Datetime(string='Warranty end Date')
+    model = fields.Many2one('equipments.model', string="Model", )
 
     @api.multi
     def button_state(self):
@@ -368,31 +401,10 @@ class MaintenanceEquipment(models.Model):
             elif self.state == 'inprogress':
                  self.state = 'done'
 
-# @api.model
-# def equipment_warranty_schedule_action(self):
-#     print(10 * '89')
-#     equipment_object = self.env['maintenance.equipment'].search([('state', '=', 'inprogress')])
-#     for record in equipment_object:
-#         if record.warranty_end == record.warranty_end:
-#             group_manager = self.env.ref('hr.group_hr_manager').id
-#
-#             # first of all get users
-#             record.env.cr.execute(
-#                 '''SELECT uid FROM res_groups_users_rel WHERE gid = %s order by uid''' % (group_manager))
-#             print("ppppppppppppppppp", group_manager)
-#             for fm in list(filter(lambda x: (
-#                     record.env['res.users'].sudo().search([('id', '=', x)])), record.env.cr.fetchall())):
-#                 print("lllllllllllll", fm)
-#                 vals = {
-#                     'activity_type_id': record.env['mail.activity.type'].sudo().search([],
-#                                                                                        limit=1).id,
-#                     'res_id': record.id,
-#                     'res_model_id': record.env['ir.model'].sudo().search([('model', 'like', 'maintenance.equipment')],
-#                                                                          limit=1).id,
-#                     'user_id': fm[0] or 1,
-#                     'summary': " The Contarct of  " + record.name + ' has been exiperd'
-#                 }
-#                 self.activity_id = self.env['mail.activity'].sudo().create(vals)
-#
-#                 print("000000000000000000000000", self.activity_id)
-#             record.state = 'done'
+class StockPickingType(models.Model):
+    _inherit = 'stock.picking.type'
+
+    type  = fields.Selection(
+        [('maintenance', 'Maintenance'), ('custody', 'Custody'), ('Manufacturing', 'manufacturing')],
+        string="Type",)
+

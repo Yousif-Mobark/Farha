@@ -29,13 +29,16 @@ class manufacturingRequests(models.Model):
     def button_draft_inprogress(self):
         if self.state == 'draft':
             self._create_picking_out()
-            self._create_picking_in()
             self.state = 'inprogress'
+
 
     @api.multi
     def button_inprogress_done(self):
-        if self.state == 'inprogress':
+        if self.state == 'inprogress' and self.picking_stock_out_id.state=='done':
+            self._create_picking_in()
             self.state = 'done'
+        else:
+            raise UserError(_("You must validate the picking '%s' first" )%(self.picking_stock_out_id.name,))
 
     def _get_picking_type(self):
         company = self.env['res.company']._company_default_get('maintenance.request')

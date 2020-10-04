@@ -2,21 +2,6 @@
 <odoo>
     <data>
 
-<!--        Warranty scheduler action-->
-
-<!--        <record id="cron_scheduler_for_warranty_equipment" model="ir.cron">-->
-<!--          <field name="name">Warranty scheduler </field>-->
-<!--          <field name="model_id" ref="maintenance_customization_11.model_maintenance_equipment"/>-->
-<!--          <field name="state">code</field>-->
-<!--          <field name="code">model.equipment_warranty_schedule_action()</field>-->
-<!--          <field name="active" eval="True"/>-->
-<!--          <field name="user_id" ref="base.user_root"/>-->
-<!--          <field name="interval_number">1</field>-->
-<!--          <field name="interval_type">minutes</field>-->
-<!--&lt;!&ndash;          <field name="nextcall">datetime.today()</field>&ndash;&gt;-->
-<!--          <field name="numbercall">-1</field>-->
-<!--          <field name="doall" eval="False"/>-->
-<!--        </record>-->
 
 
         <record id="view_inhereted_maintenance_request_form" model="ir.ui.view">
@@ -46,6 +31,7 @@
                     <field name="bank_name" domain="[('customer','=',True)]"
                            context="{'search_default_customer':1, 'show_address': 1}"
                            options="{&quot;always_reload&quot;: True}"/>
+
                     <field name="model"/>
                     <field name="location"/>
                     <field name="city"/>
@@ -94,8 +80,8 @@
                         <page string="Other Info">
                             <group string="Inventory">
                                 <field name="picking_from_stock_id" readonly="1"/>
-                                <field name="picking_from_technician_id" readonly="1" />
-                                <field name="picking_type_id" />
+                                <field name="picking_from_technician_id" readonly="1"/>
+                                <field name="picking_type_id"/>
                             </group>
                             <group string="Sale Order">
                                 <field name="sale_order_id" readonly="1"/>
@@ -117,17 +103,19 @@
             </field>
         </record>
 
-        <record id="view_inhereted_hr_employee_form" model="ir.ui.view">
-            <field name="name">hr employee</field>
-            <field name="model">hr.employee</field>
-            <field name="inherit_id" ref="hr.view_employee_form"/>
+        <record id="view_inhereted_picking_type_form" model="ir.ui.view">
+            <field name="name">picking type form</field>
+            <field name="model">stock.picking.type</field>
+            <field name="inherit_id" ref="stock.view_picking_type_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//field[@name='user_id']" position="after">
-                    <field name="location_id" string="Related Location"/>
+                <xpath expr="//field[@name='warehouse_id']" position="after">
+                    <field name="type" string="Location Type"/>
                 </xpath>
 
             </field>
         </record>
+
+
         <record id="view_inhereted_hr_equipment_form" model="ir.ui.view">
             <field name="name">maintenance equipment</field>
             <field name="model">maintenance.equipment</field>
@@ -144,14 +132,11 @@
 
                 </xpath>
                 <xpath expr="//field[@name='maintenance_team_id']" position="after">
-                  <field name="has_warranty" widget="radio"/>
-                  <field name="warranty_start" attrs="{'invisible': [('has_warranty', '==', 'no')]}"/>
-                 <field name="warranty_end" attrs="{'invisible': [('has_warranty', '==', 'no')]}"/>
+                    <field name="contract_id"/>
+                    <field name="has_warranty" widget="radio"/>
+                    <field name="warranty_start" attrs="{'invisible': [('has_warranty', '==', 'no')]}"/>
+                    <field name="warranty_end" attrs="{'invisible': [('has_warranty', '==', 'no')]}"/>
                 </xpath>
-
-
-
-
 
 
             </field>
