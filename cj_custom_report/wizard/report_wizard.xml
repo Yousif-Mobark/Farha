@@ -1,0 +1,36 @@
+<odoo>
+    <record model="ir.ui.view" id="pos_recap_report_wizard">
+        <field name="name">POS Custom Recap Report</field>
+        <field name="model">pos.recap.report.wizard</field>
+        <field name="type">form</field>
+        <field name="arch" type="xml">
+            <form string="Point Of Sale Report">
+                <group>
+                    <group>
+                        <field name="date_start"/>
+                    </group>
+                    <group>
+                        <field name="date_end"/>
+                    </group>
+                    <group>
+                        <field name="pos_config_ids" widget="many2many_tags"/>
+                    </group>
+                </group>
+                <footer>
+                    <button name="get_report" string="Get Report" type="object" class="oe_highlight"/>
+                    <button string="Cancel" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <act_window id="action_pos_recap_report_wizard"
+                name="Pos Recap Report"
+                res_model="pos.recap.report.wizard"
+                view_mode="form"
+                target="new"/>
+
+    <menuitem action="action_pos_recap_report_wizard"
+              id="menu_pos_report_wizard"
+              parent="point_of_sale.menu_point_of_sale"/>
+</odoo>

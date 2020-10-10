@@ -1,0 +1,57 @@
+<odoo>
+    <record model="report.paperformat" id="paperformat_pos_recap_report">
+        <field name="name">paperformat.pos.recap.report</field>
+        <field name="default" eval="True"/>
+        <field name="format">A4</field>
+        <field name="page_width">0</field>
+        <field name="page_width">0</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">30</field>
+        <field name="margin_right">5</field>
+        <field name="margin_bottom">10</field>
+        <field name="margin_left">5</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">20</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <report id="recap_report"
+            model="pos.recap.report.wizard"
+            string="Pos Recap Report"
+            report_type="qweb-pdf"
+            name="cj_custom_report.pos_recap_report_view"
+            paperformat="paperformat_pos_recap_report"
+            menu="False"/>
+
+    <template id="pos_recap_report_view">
+        <div style="border-bottom: 2px solid black">
+            <h3 class="text-center">Pos Recap Report</h3>
+            <h4 class="text-center">
+                <strong>From</strong>:
+<!--                <t t-esc="date_start"/>-->
+                <strong>To</strong>:
+<!--                <t t-esc="date_end"/>-->
+            </h4>
+        </div>
+        <div class="article">
+
+        </div>
+        <div class="footer">
+            <div class="row text-center" style="border-top: 1px solid black;">
+                <div class="col-xs-3 col-xs-offset-9 text-right">
+                    <ul class="list-inline" style="margin-top:10px;">
+                        <li>Page:</li>
+                        <li>
+                            <span class="page"/>
+                        </li>
+                        <li>/</li>
+                        <li>
+                            <span class="topage"/>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </template>
+</odoo>
+
