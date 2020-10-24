@@ -10,9 +10,10 @@ class MaintenanceRequests(models.Model):
     _description = 'Maintenance Management'
 
     call_date = fields.Datetime(string="Call Received Date", required=True, default=str(datetime.now()))
+    category = fields.Many2one('maintenance.equipment.category', string='Equipment Category')
     bank_name = fields.Many2one('res.partner', string="Bank Name")
-    location = fields.Char(string="Location")
-    city = fields.Char(string="City")
+    location = fields.Many2one('equipments.location',string="Location")
+    city = fields.Many2one('equipments.city',string="City")
     serial_number = fields.Char(string="Serial Number", size=50, )
     maintenance_type = fields.Selection(
         [('corrective', 'Corrective'), ('preventive', 'Preventive'), ('periodic', 'Periodic')],
@@ -43,6 +44,42 @@ class MaintenanceRequests(models.Model):
     picking_from_stock_id = fields.Many2one('stock.picking', string='Stock Picking')
     picking_from_technician_id = fields.Many2one('stock.picking', string='Stock technician')
     sale_order_id = fields.Many2one('sale.order', string='Sale Oredr')
+    electricity = fields.Boolean(string='Electricity')
+    air_condition = fields.Boolean(string='Air Condition')
+    site_condition = fields.Boolean(string='Sit Condition')
+    money = fields.Boolean(string='Amount of Money')
+    electricity1 = fields.Char(string='Electricity')
+    air_condition1 = fields.Char(string='Air Condition')
+    site_condition1 = fields.Char(string='Sit Condition')
+    money1 = fields.Char(string='Amount of Money')
+
+    @api.onchange('category')
+    def _onchange_category(self):
+        domain = {'equipment_id': [('category_id', '=', self.category.id)]}
+        # domain += {'equipment_id': [('partner_id', '=', self.bank_name.id)]}
+        print(domain,"fddddddddddddddddddd")
+        return {'domain': domain}
+
+    @api.onchange('bank_name')
+    def _onchange_bank(self):
+        domain = {'equipment_id': [('partner_id', '=', self.bank_name.id)]}
+        # domain += {'equipment_id': [('partner_id', '=', self.bank_name.id)]}
+        print(domain, "fddddddddddddddddddd")
+        return {'domain': domain}
+
+    @api.onchange('location')
+    def _onchange_model(self):
+        domain = {'equipment_id': [('model', '=', self.model.id)]}
+        # domain += {'equipment_id': [('partner_id', '=', self.bank_name.id)]}
+        print(domain, "fddddddddddddddddddd")
+        return {'domain': domain}
+
+    @api.onchange('location')
+    def _onchange_location(self):
+        domain = {'equipment_id': [('location1', '=', self.location.id)]}
+        # domain += {'equipment_id': [('partner_id', '=', self.bank_name.id)]}
+        print(domain, "fddddddddddddddddddd")
+        return {'domain': domain}
 
     @api.constrains('work_start_time', 'work_end_time')
     def end_date_constrain(self):
@@ -223,7 +260,7 @@ class Spar_part(models.Model):
     product_id = fields.Many2one('product.product', stirng='Service', required=True)
     description = fields.Char('Description', related='product_id.name')
     qty = fields.Float('Requested Qty', default=1)
-    spar_source = fields.Selection([('stock', 'Stock'), ('technician', 'Technician')])
+    spar_source = fields.Selection([('technician', 'Technician')])
     location_id = fields.Many2one('stock.location', string='Source Location', readonly=True)
     location_dest_id = fields.Many2one('stock.location', string='Source Dist Location', readonly=True)
     stock_spar = fields.Boolean('From Stock', defualt=False)
@@ -329,6 +366,24 @@ class Equipments_model(models.Model):
     name = fields.Char(string="Name")
     code = fields.Char(string="code")
 
+class Equipments_city(models.Model):
+    _name = 'equipments.city'
+    _rec_name = "name"
+    _description = 'Equipments city'
+
+    name = fields.Char(string="Name")
+    code = fields.Char(string="code")
+
+class Equipments_loction(models.Model):
+    _name = 'equipments.location'
+    _rec_name = "name"
+    _description = 'Equipments location'
+
+    name = fields.Char(string="Name")
+    code = fields.Char(string="code")
+    city = fields.Many2one('equipments.city',string='City')
+
+
 
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
@@ -365,11 +420,13 @@ class MaintenanceEquipment(models.Model):
         default="draft")
     location = fields.Selection(
         [('inkhartoum', 'Khartoum'), ('outkhartoum', 'Out Khartoum')], string="Location", default="inkhartoum")
+    location1 = fields.Many2one('equipments.location', string="Location")
 
     has_warranty = fields.Selection([('no', 'No'), ('yes', 'Yes')], string="Has Warranty", default="no")
     warranty_start = fields.Datetime(string='Warranty Start Date')
     warranty_end = fields.Datetime(string='Warranty end Date')
     model = fields.Many2one('equipments.model', string="Model", )
+    partner_id = fields.Many2one('res.partner', string='Bank Name', domain="[('supplier', '=', 1)]")
 
     @api.multi
     def button_state(self):

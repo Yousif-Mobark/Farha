@@ -3,7 +3,6 @@
     <data>
 
 
-
         <record id="view_inhereted_maintenance_request_form" model="ir.ui.view">
             <field name="name">maintenance</field>
             <field name="model">maintenance.request</field>
@@ -25,9 +24,13 @@
                     </header>
 
                 </xpath>
+                <xpath expr="//field[@name='category_id']" position="attributes">
+                    <attribute name="invisible">1</attribute>
+                </xpath>
 
                 <xpath expr="//field[@name='equipment_id']" position="before">
                     <field name="call_date"/>
+                    <field name="category"/>
                     <field name="bank_name" domain="[('customer','=',True)]"
                            context="{'search_default_customer':1, 'show_address': 1}"
                            options="{&quot;always_reload&quot;: True}"/>
@@ -64,6 +67,7 @@
 
                 </xpath>
 
+
                 <xpath expr="//group" position="after">
                     <notebook>
                         <page string="Spare Part">
@@ -95,6 +99,25 @@
                                 <field name="action" placeholder="Action ......." nolabel="1"/>
                                 <field name="comment" placeholder="Comment ......." nolabel="1"/>
                             </group>
+                        </page>
+
+                        <page string="Other Dignose">
+                           <group>
+                            <group>
+
+                                <field name="electricity" />
+                                <field name="air_condition"/>
+                                <field name="site_condition" />
+                                <field name="money" />
+                            </group>
+                            <group col="1">
+
+                                <field name="electricity1" nolabel="1" />
+                                <field name="air_condition1" nolabel="1"/>
+                                <field name="site_condition1" nolabel="1"/>
+                                <field name="money1" nolabel="1" />
+                            </group>
+                        </group>
                         </page>
 
                     </notebook>
@@ -133,6 +156,8 @@
                 </xpath>
                 <xpath expr="//field[@name='maintenance_team_id']" position="after">
                     <field name="contract_id"/>
+                    <field name="partner_id"/>
+                    <field name="location1"/>
                     <field name="has_warranty" widget="radio"/>
                     <field name="warranty_start" attrs="{'invisible': [('has_warranty', '==', 'no')]}"/>
                     <field name="warranty_end" attrs="{'invisible': [('has_warranty', '==', 'no')]}"/>
@@ -140,6 +165,10 @@
 
 
             </field>
+        </record>
+
+        <record model="ir.ui.menu" id="maintenance.menu_m_request_form">
+            <field name="name">Maintenance Report</field>
         </record>
 
     </data>
