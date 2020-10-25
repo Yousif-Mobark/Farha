@@ -7,7 +7,7 @@
 This module created to manage maintence services provid by Magal 
 
 	""",
- 'depends': ['base','fleet','maintenance','stock','account','hr','sale'],
+ 'depends': ['base','maintenance','stock','account','hr','sale'],
     'data': [
 
         'security/ir.model.access.csv',
