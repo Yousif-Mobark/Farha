@@ -102,22 +102,22 @@
                         </page>
 
                         <page string="Other Dignose">
-                           <group>
                             <group>
+                                <group>
 
-                                <field name="electricity" />
-                                <field name="air_condition"/>
-                                <field name="site_condition" />
-                                <field name="money" />
-                            </group>
-                            <group col="1">
+                                    <field name="electricity" />
+                                    <field name="air_condition"/>
+                                    <field name="site_condition" />
+                                    <field name="money" />
+                                </group>
+                                <group col="1">
 
-                                <field name="electricity1" nolabel="1" />
-                                <field name="air_condition1" nolabel="1"/>
-                                <field name="site_condition1" nolabel="1"/>
-                                <field name="money1" nolabel="1" />
+                                    <field name="electricity1" nolabel="1" />
+                                    <field name="air_condition1" nolabel="1"/>
+                                    <field name="site_condition1" nolabel="1"/>
+                                    <field name="money1" nolabel="1" />
+                                </group>
                             </group>
-                        </group>
                         </page>
 
                     </notebook>
@@ -154,9 +154,10 @@
                     </header>
 
                 </xpath>
+                <field name="partner_id" position="replace"/>
                 <xpath expr="//field[@name='maintenance_team_id']" position="after">
                     <field name="contract_id"/>
-                    <field name="partner_id"/>
+                    <field name="partner_id" domain="[('customer','=',True)]"/>
                     <field name="location1"/>
                     <field name="has_warranty" widget="radio"/>
                     <field name="warranty_start" attrs="{'invisible': [('has_warranty', '==', 'no')]}"/>
@@ -173,5 +174,24 @@
 
     </data>
 
+
+    <record id="action_locations" model="ir.actions.act_window">
+        <field name="name">Locations</field>
+        <field name="res_model">equipments.city</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+
+    </record>
+
+    <record id="action_models" model="ir.actions.act_window">
+        <field name="name">Models</field>
+        <field name="res_model">equipments.model</field>
+        <field name="view_type">form</field>
+        <field name="view_mode">tree,form</field>
+
+    </record>
+
+    <menuitem id="city_menu_item" parent="maintenance.menu_maintenance_configuration"  name="City / Locations" action="action_locations" />
+    <menuitem id="model_menu_item" parent="maintenance.menu_maintenance_configuration"  name="ATM Models" action="action_models" />
 
 </odoo>

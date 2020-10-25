@@ -53,33 +53,21 @@ class MaintenanceRequests(models.Model):
     site_condition1 = fields.Char(string='Sit Condition')
     money1 = fields.Char(string='Amount of Money')
 
-    @api.onchange('category')
+    @api.onchange('category',"bank_name",'model','location')
     def _onchange_category(self):
-        domain = {'equipment_id': [('category_id', '=', self.category.id)]}
-        # domain += {'equipment_id': [('partner_id', '=', self.bank_name.id)]}
-        print(domain,"fddddddddddddddddddd")
+        domain=[]
+        if self.category:
+            domain.append(('category_id', '=', self.category.id))
+        if self.bank_name:
+            domain.append(('partner_id', '=', self.bank_name.id))
+        if self.model:
+            domain.append(('model', '=', self.model.id))
+        if self.location:
+            domain.append(('location1', '=', self.location.id))
+        domain = {'equipment_id': domain}
+
         return {'domain': domain}
 
-    @api.onchange('bank_name')
-    def _onchange_bank(self):
-        domain = {'equipment_id': [('partner_id', '=', self.bank_name.id)]}
-        # domain += {'equipment_id': [('partner_id', '=', self.bank_name.id)]}
-        print(domain, "fddddddddddddddddddd")
-        return {'domain': domain}
-
-    @api.onchange('location')
-    def _onchange_model(self):
-        domain = {'equipment_id': [('model', '=', self.model.id)]}
-        # domain += {'equipment_id': [('partner_id', '=', self.bank_name.id)]}
-        print(domain, "fddddddddddddddddddd")
-        return {'domain': domain}
-
-    @api.onchange('location')
-    def _onchange_location(self):
-        domain = {'equipment_id': [('location1', '=', self.location.id)]}
-        # domain += {'equipment_id': [('partner_id', '=', self.bank_name.id)]}
-        print(domain, "fddddddddddddddddddd")
-        return {'domain': domain}
 
     @api.constrains('work_start_time', 'work_end_time')
     def end_date_constrain(self):
@@ -363,24 +351,26 @@ class Equipments_model(models.Model):
     _rec_name = "name"
     _description = 'Equipments Model'
 
-    name = fields.Char(string="Name")
-    code = fields.Char(string="code")
+    name = fields.Char(string="Name" ,required=True)
+    code = fields.Char(string="code" , required=True)
 
 class Equipments_city(models.Model):
     _name = 'equipments.city'
     _rec_name = "name"
     _description = 'Equipments city'
 
-    name = fields.Char(string="Name")
-    code = fields.Char(string="code")
+    name = fields.Char(string="Name" , required=True)
+    code = fields.Char(string="code" , required=True)
+
+    locations = fields.One2many("equipments.location","city")
 
 class Equipments_loction(models.Model):
     _name = 'equipments.location'
     _rec_name = "name"
     _description = 'Equipments location'
 
-    name = fields.Char(string="Name")
-    code = fields.Char(string="code")
+    name = fields.Char(string="Name" , required=True)
+    code = fields.Char(string="code" , required=True)
     city = fields.Many2one('equipments.city',string='City')
 
 
