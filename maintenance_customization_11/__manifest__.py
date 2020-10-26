@@ -1,7 +1,7 @@
 {
     'name': 'Magal Maintenance Management',
     'version': '1.0',
-    'author': 'Osman Alrasheed',
+    'author': 'Moggal',
     'category': 'Employees',
     'description': """
 This module created to manage maintence services provid by Magal 

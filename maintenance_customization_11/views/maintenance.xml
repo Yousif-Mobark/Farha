@@ -30,14 +30,14 @@
 
                 <xpath expr="//field[@name='equipment_id']" position="before">
                     <field name="call_date"/>
-                    <field name="category"/>
+                    <field name="category" options="{'no_create': True}" required="1"/>
                     <field name="bank_name" domain="[('customer','=',True)]"
                            context="{'search_default_customer':1, 'show_address': 1}"
-                           options="{&quot;always_reload&quot;: True}"/>
+                           options="{'no_create': True}" required="1"/>
 
-                    <field name="model"/>
-                    <field name="location"/>
-                    <field name="city"/>
+                    <field name="model" options="{'no_create': True}" required="1"/>
+                    <field name="city" options="{'no_create': True}" required="1"/>
+                    <field name="location" domain="[('city','=',city)]" options="{'no_create': True}" required="1"/>
 
 
                 </xpath>
@@ -94,10 +94,10 @@
                         <page string="Dignose Info">
                             <group col="1">
 
-                                <field name="fault" placeholder="Fault  ......." nolabel="1"/>
-                                <field name="cuase" placeholder="Cuase  ......." nolabel="1"/>
-                                <field name="action" placeholder="Action ......." nolabel="1"/>
-                                <field name="comment" placeholder="Comment ......." nolabel="1"/>
+                                <field name="fault" placeholder="Fault  ......." nolabel="1" required="1"/>
+                                <field name="cuase" placeholder="Cuase  ......." nolabel="1" required="1"/>
+                                <field name="action" placeholder="Action ......." nolabel="1" required="1"/>
+                                <field name="comment" placeholder="Comment ......." nolabel="1" required="1"/>
                             </group>
                         </page>
 
@@ -156,13 +156,34 @@
                 </xpath>
                 <field name="partner_id" position="replace"/>
                 <xpath expr="//field[@name='maintenance_team_id']" position="after">
-                    <field name="contract_id"/>
-                    <field name="partner_id" domain="[('customer','=',True)]"/>
-                    <field name="location1"/>
+
+                </xpath>
+
+                <field name="model" position="replace">
+                    <field name="model" required="1" options="{'no_create': True}"/>
+                    <field name="partner_id" domain="[('customer','=',True)]" required="1"/>
+                    <field name="city" required="1"  options="{'no_create': True}"/>
+                    <field name="location1" domain="[('city','=',city)]"  required="1" options="{'no_create': True}"/>
+                </field>
+                <field position="replace" name="category_id" >
+                    <field name="category_id" required="1" options="{'no_create': True}"/>
+                </field>
+                <field name="partner_ref" options="replace"/>
+                <field name="employee_id" position="replace"/>
+                <field name="cost" position="replace"/>
+                <field name="serial_no" position="replace"/>
+                <field name="equipment_assign_to" position="replace">
+                     <field name="equipment_assign_to" required="1"/>
+                    <field name="serial_no" required="1"/>
+                </field>
+                <field name="assign_date" position="replace"/>
+                <field name="scrap_date" position="replace"/>
+                <field name="warranty" position="replace">
+                    <field name="contract_id" readonly="1"/>
                     <field name="has_warranty" widget="radio"/>
                     <field name="warranty_start" attrs="{'invisible': [('has_warranty', '==', 'no')]}"/>
                     <field name="warranty_end" attrs="{'invisible': [('has_warranty', '==', 'no')]}"/>
-                </xpath>
+                </field>
 
 
             </field>

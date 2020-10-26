@@ -1,2 +1,13 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 custody_a,custody,model_custody_request,,1,1,1,1
+custody_clearance,custody clearance,model_custody_clearance,,1,1,1,1
+custody_clearance_spare,custody clearance spare ,model_spar_part_clearance,,1,1,1,1
+contract_equpment,equipment contract,model_equipment_contract,,1,1,1,1
+contract_equpment_lines,contract equipments,model_equipment_equipment,,1,1,1,1
+access_cityies,cityies,model_equipments_city,,1,1,1,1
+access_locations,cityies/locations,model_equipments_location,,1,1,1,1
+access_models,equipment_models,model_equipments_model,,1,1,1,1
+access_spare_lines,Spare part,model_spar_part,,1,1,1,1
+access_spare_request_lines,Spare part request line,model_spar_part_request,,1,1,1,1
+access_manufacturing,manufacturing maintenance,model_manufacturing_request,,1,1,1,1
+access_manufacturing_spare,manufacturing maintenance Spare,model_spar_manufacturing,,1,1,1,1

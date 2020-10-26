@@ -56,6 +56,7 @@ class MaintenanceRequests(models.Model):
     @api.onchange('category',"bank_name",'model','location')
     def _onchange_category(self):
         domain=[]
+        self.equipment_id=False
         if self.category:
             domain.append(('category_id', '=', self.category.id))
         if self.bank_name:
@@ -65,8 +66,16 @@ class MaintenanceRequests(models.Model):
         if self.location:
             domain.append(('location1', '=', self.location.id))
         domain = {'equipment_id': domain}
-
         return {'domain': domain}
+
+    @api.onchange('equipment_id')
+    def _onchange_equipment(self):
+        if self.equipment_id:
+            self.category=self.equipment_id.category_id
+            self.bank_name=self.equipment_id.partner_id
+            self.model=self.equipment_id.model
+            self.location=self.equipment_id.location1
+            self.city = self.equipment_id.city
 
 
     @api.constrains('work_start_time', 'work_end_time')
@@ -86,7 +95,6 @@ class MaintenanceRequests(models.Model):
 
     @api.model
     def equipment_warranty(self):
-        print(10 * '89')
         # contract_object = self.env['equipment.contract'].search([('state', '=', 'valid')])
 
         if self.status == 'warranty':
@@ -206,17 +214,13 @@ class MaintenanceRequests(models.Model):
                 seq += 5
                 move.sequence = seq
             if picking_stock.move_lines:
-                print(13 * '1')
                 order.write({'picking_from_stock_id': picking_stock.id})
             else:
                 picking_stock.unlink()
-                print(13 * '2')
             if picking_technician.move_lines:
                 order.write({'picking_from_technician_id': picking_technician.id})
-                print(13 * '3')
             else:
                 picking_technician.unlink()
-                print(13 * '4')
 
     @api.model
     def _prepare_sale_order(self):
@@ -242,7 +246,7 @@ class MaintenanceRequests(models.Model):
 
 class Spar_part(models.Model):
     _name = 'spar.part'
-    _description = ""
+    _description = "Maintenance Spare"
 
     maintenance_request_id = fields.Many2one('maintenance.request', string='Maintenance Request', ondelete='cascade')
     product_id = fields.Many2one('product.product', stirng='Service', required=True)
@@ -295,13 +299,10 @@ class Spar_part(models.Model):
         moves = self.env['stock.move']
         done = self.env['stock.move'].browse()
         for line in self.filtered(lambda x: x.spar_source == 'stock' and x.warranty == False):
-            print(line.product_id.name)
-            print(30 * 'q')
             if picking_stock:
                 val = line._prepare_stock_moves(picking_stock)
         for line in self.filtered(lambda x: x.spar_source == 'technician' and x.warranty == False):
             print(line.product_id.name)
-            print(30 * 'b')
             if picking_technicain:
                 val = line._prepare_stock_moves(picking_technicain)
 
@@ -391,10 +392,8 @@ class StockMove(models.Model):
     def create(self, vals):
         result = super(StockMove, self).create(vals)
         if result.sale_line_id:
-            print(20 * "osman", result.sale_line_id.location_id)
-            result.location_id = result.sale_line_id.location_id
-            print(20 * "osman", result.sale_line_id.location_dest_id)
-            result.location_dest_id = result.location_dest_id
+             result.location_id = result.sale_line_id.location_id
+             result.location_dest_id = result.location_dest_id
 
         return result
 
@@ -417,6 +416,7 @@ class MaintenanceEquipment(models.Model):
     warranty_end = fields.Datetime(string='Warranty end Date')
     model = fields.Many2one('equipments.model', string="Model", )
     partner_id = fields.Many2one('res.partner', string='Bank Name', domain="[('supplier', '=', 1)]")
+    city= fields.Many2one('equipments.city')
 
     @api.multi
     def button_state(self):
