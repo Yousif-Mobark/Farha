@@ -80,9 +80,9 @@ class MaintenanceRequests(models.Model):
 
     @api.constrains('work_start_time', 'work_end_time')
     def end_date_constrain(self):
-        if self.work_start_time > self.work_end_time:
-            print(10 * "cons")
-            raise UserError(_("Work start Date must be greater the work end date"))
+        if self.work_start_time and self.work_end_time:
+            if self.work_start_time > self.work_end_time:
+                raise UserError(_("Work start Date must be greater the work end date"))
 
     @api.multi
     @api.onchange('work_start_time', 'work_end_time')

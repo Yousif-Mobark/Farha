@@ -119,7 +119,6 @@ class EquipmentsContract(models.Model):
 
     @api.model
     def equipment_contract_schedule_action(self):
-        print(10 * '89')
         contract_object = self.env['equipment.contract'].search([('state', '=', 'valid')])
         for record in contract_object:
             if record.end_date == datetime.today():

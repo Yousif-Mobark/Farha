@@ -31,7 +31,7 @@
                 <xpath expr="//field[@name='equipment_id']" position="before">
                     <field name="call_date"/>
                     <field name="category" options="{'no_create': True}" required="1"/>
-                    <field name="bank_name" domain="[('customer','=',True),('category_id[0].name','=','bank')]"
+                    <field name="bank_name" domain="[('customer','=',True),('category_id','=','1')]"
                            context="{'search_default_customer':1, 'show_address': 1}"
                            options="{'no_create': True}" required="1"/>
 
@@ -161,7 +161,7 @@
 
                 <field name="model" position="replace">
                     <field name="model" required="1" options="{'no_create': True}"/>
-                    <field name="partner_id" domain="[('customer','=',True)]" required="1"/>
+                    <field name="partner_id" domain="[('customer','=',True),('category_id','=','1')]" required="1"/>
                     <field name="city" required="1"  options="{'no_create': True}"/>
                     <field name="location1" domain="[('city','=',city)]"  required="1" options="{'no_create': True}"/>
                 </field>
@@ -195,6 +195,39 @@
 
     </data>
 
+      <record id="view_cityiesAndLocations" model="ir.ui.view">
+
+            <field name="name">Cityies and locations</field>
+            <field name="model">equipments.city</field>
+            <field name="arch" type="xml">
+                <tree string="City">
+                    <field name="name"/>
+                    <field name="code"/>
+                </tree>
+            </field>
+      </record>
+      <record id="view_cityiesAndLocations_forms" model="ir.ui.view">
+
+            <field name="name">Cityies and locations</field>
+            <field name="model">equipments.city</field>
+            <field name="arch" type="xml">
+                <form string="City">
+                    <group col="4">
+                    <field name="name"/>
+                    <field name="code"/>
+                    </group>
+                    <label string="Locations"/>
+                    <br/>
+                    <field name="locations" >
+                        <tree editable="top">
+                            <field name="name"/>
+                            <field name="code"/>
+                        </tree>
+                    </field>
+
+                </form>
+            </field>
+      </record>
 
     <record id="action_locations" model="ir.actions.act_window">
         <field name="name">Locations</field>
