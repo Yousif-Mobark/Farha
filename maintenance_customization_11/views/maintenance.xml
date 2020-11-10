@@ -31,7 +31,7 @@
                 <xpath expr="//field[@name='equipment_id']" position="before">
                     <field name="call_date"/>
                     <field name="category" options="{'no_create': True}" required="1"/>
-                    <field name="bank_name" domain="[('customer','=',True)]"
+                    <field name="bank_name" domain="[('customer','=',True),('category_id[0].name','=','bank')]"
                            context="{'search_default_customer':1, 'show_address': 1}"
                            options="{'no_create': True}" required="1"/>
 
