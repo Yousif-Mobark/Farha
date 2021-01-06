@@ -144,16 +144,16 @@
             <field name="model">maintenance.equipment</field>
             <field name="inherit_id" ref="maintenance.hr_equipment_view_form"/>
             <field name="arch" type="xml">
-                <xpath expr="//sheet" position="before">
-                    <header>
+<!--                <xpath expr="//sheet" position="before">-->
+<!--                    <header>-->
 
-                        <button name="button_state" string="Engineer Confirm" type="object"
-                                class="oe_highlight"
-                                attrs="{'invisible':[('state','in',('done'))]}"/>
-                        <field name="state" widget="statusbar" statusbar_visible="draft,inprogress,done"/>
-                    </header>
+<!--                        <button name="button_state" string="Engineer Confirm" type="object"-->
+<!--                                class="oe_highlight"-->
+<!--                                attrs="{'invisible':[('state','in',('done'))]}"/>-->
+<!--                        <field name="state" widget="statusbar" statusbar_visible="draft,inprogress,done"/>-->
+<!--                    </header>-->
 
-                </xpath>
+<!--                </xpath>-->
                 <field name="partner_id" position="replace"/>
                 <xpath expr="//field[@name='maintenance_team_id']" position="after">
 

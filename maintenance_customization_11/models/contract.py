@@ -101,7 +101,7 @@ class EquipmentsContract(models.Model):
         }
         account_created = account_created.create(account_object_vals)
         try:
-            product_id = self.env.ref('maintenance_customization_11.contract_fee_product')
+            product_id = self.env.ref('maintenance_customization_11.contract_fee_product_product')
         except:
             raise UserError("you have delete configuration product ; please upgrade Maintenance module.")
         account_line_object1 = self.env['account.invoice.line']

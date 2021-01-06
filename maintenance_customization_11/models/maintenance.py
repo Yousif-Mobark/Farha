@@ -388,14 +388,14 @@ class StockMove(models.Model):
     _inherit = 'stock.move'
     _description = 'Stock Move'
 
-    @api.model
-    def create(self, vals):
-        result = super(StockMove, self).create(vals)
-        if result.sale_line_id:
-             result.location_id = result.sale_line_id.location_id
-             result.location_dest_id = result.location_dest_id
-
-        return result
+    # @api.model
+    # def create(self, vals):
+    #     result = super(StockMove, self).create(vals)
+    #     if result.sale_line_id:
+    #          result.location_id = result.sale_line_id.location_id
+    #          result.location_dest_id = result.location_dest_id
+    #
+    #     return result
 
 
 class MaintenanceEquipment(models.Model):
