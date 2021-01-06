@@ -14,8 +14,8 @@ class EquipmentsContract(models.Model):
     # name = fields.Char(string='name', required=True)
     partner_id = fields.Many2one('res.partner', string='Customer', required=True)
     equipment = fields.One2many('equipment.equipment', 'equipment_contract_id' , string='Equipment')
-    start_date = fields.Datetime(string='Start Date', default=str(datetime.now()), required='True')
-    end_date = fields.Datetime(string='Start Date', default=str(datetime.now()), required='True')
+    start_date = fields.Datetime(string='Start Date', default=lambda a:str(datetime.now()), required='True')
+    end_date = fields.Datetime(string='End Date',default=lambda a:str(datetime.now()), required='True')
     state = fields.Selection(
         [('draft', 'Draft'), ('valid', 'Valid'), ('expired', 'Expired')],
         string="State",
@@ -28,7 +28,7 @@ class EquipmentsContract(models.Model):
         string="Spar Included",
         default="no")
     living_state = fields.Selection([('no', 'No'), ('yes', 'Yes')],string="Living Included",default="no")
-    living_cost = fields.Float(string="Contract Cost")
+    living_cost = fields.Float(string="Living Cost")
     equipment_number = fields.Integer(string="Equipment Number",compute='_get_equipment_number' ,store=True)
 
 
@@ -100,13 +100,17 @@ class EquipmentsContract(models.Model):
 
         }
         account_created = account_created.create(account_object_vals)
-        product_id = self.env.ref('maintenance_customization_11.contract_fee_product')
+        try:
+            product_id = self.env.ref('maintenance_customization_11.contract_fee_product')
+        except:
+            raise UserError("you have delete configuration product ; please upgrade Maintenance module.")
         account_line_object1 = self.env['account.invoice.line']
-        print(product_id.name)
+        if not product_id.property_account_income_id :
+            raise UserError("please Specify Income account for "+product_id.name)
         account_line_vals1 = {
             'product_id': product_id.id,
             'name': 'Contract Fees',
-            'price_unit': self.price,
+            'price_unit': self.cost,
             'invoice_id': account_created.id,
             'account_id': product_id.property_account_income_id.id,
             'quantity': 1,

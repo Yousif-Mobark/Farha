@@ -1,20 +1,20 @@
 <odoo>
     <data>
 
-<!--        contarct scheduler action-->
+        <!--        contarct scheduler action-->
 
         <record id="cron_scheduler_for_contract_equipment" model="ir.cron">
-          <field name="name">Contract scheduler </field>
-          <field name="model_id" ref="maintenance_customization_11.model_equipment_contract"/>
-          <field name="state">code</field>
-          <field name="code">model.equipment_contract_schedule_action()</field>
-          <field name="active" eval="True"/>
-          <field name="user_id" ref="base.user_root"/>
-          <field name="interval_number">1</field>
-          <field name="interval_type">minutes</field>
-<!--          <field name="nextcall">datetime.today()</field>-->
-          <field name="numbercall">-1</field>
-          <field name="doall" eval="False"/>
+            <field name="name">Contract scheduler </field>
+            <field name="model_id" ref="maintenance_customization_11.model_equipment_contract"/>
+            <field name="state">code</field>
+            <field name="code">model.equipment_contract_schedule_action()</field>
+            <field name="active" eval="True"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <!--          <field name="nextcall">datetime.today()</field>-->
+            <field name="numbercall">-1</field>
+            <field name="doall" eval="False"/>
         </record>
 
         <record id="view_equipment_contract_form" model="ir.ui.view">
@@ -28,7 +28,7 @@
                                 attrs="{'invisible':[('state','in',('valid'))]}"/>
                         <button name="button_state" string="Renew" type="object" class="oe_highlight"
                                 attrs="{'invisible':[('state','in',('expired'))]}"/>
-                         <button name="create_invoice" string="Create Invoice" type="object" class="oe_highlight"/>
+                        <button name="create_invoice" string="Create Invoice" type="object" class="oe_highlight"/>
 
                         <field name="state" widget="statusbar"
                                statusbar_visible="draft,valid,expired"/>
@@ -43,12 +43,12 @@
 
                         </div>
 
-<!--                        <div class="oe_title">-->
-<!--                            <label for="name" class="oe_edit_only"/>-->
-<!--                            <h1>-->
-<!--                                <field name="name"  placeholder="Equipment Name" nolable="True"/>-->
-<!--                            </h1>-->
-<!--                        </div>-->
+                        <!--                        <div class="oe_title">-->
+                        <!--                            <label for="name" class="oe_edit_only"/>-->
+                        <!--                            <h1>-->
+                        <!--                                <field name="name"  placeholder="Equipment Name" nolable="True"/>-->
+                        <!--                            </h1>-->
+                        <!--                        </div>-->
                         <group>
                             <group>
                                 <field name="partner_id" context="{'default_supplier': False, 'default_customer': True}"/>
@@ -123,6 +123,12 @@
 
         </record>
 
+        <record model="product.product" id="contract_fee_product">
+            <field name="name">Contract Fees</field>
+            <field name="type">service</field>
+            <!--            <field name="purchase_line_warn">warning</field>-->
+            <!--            <field name="sale_line_warn">no-message</field>-->
+        </record>
 
         <!-- Menu of equipment contract-->
         <menuitem id="menu_equipment_contract_main" name="Equipment" parent="maintenance.menu_maintenance_title"/>
