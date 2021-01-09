@@ -51,9 +51,10 @@
                     <label for="consumed_time"/>
                     <div class="o_row">
                         <field name="consumed_time" calss="oe_inline"/>
-                        <span>days</span>
+                        <span>Hour</span>
                     </div>
                     <field name="status"/>
+                    <field name="call_type" />
 
                 </xpath>
 
@@ -76,7 +77,7 @@
                                     <field name="product_id"/>
                                     <field name="description"/>
                                     <field name="qty"/>
-                                    <field name="spar_source"/>
+                                    <field name="spar_source" invisible="1"/>
                                     <field name="warranty" string="NO Warranty"/>
                                 </tree>
                             </field>

@@ -52,6 +52,8 @@ class MaintenanceRequests(models.Model):
     air_condition1 = fields.Char(string='Air Condition')
     site_condition1 = fields.Char(string='Sit Condition')
     money1 = fields.Char(string='Amount of Money')
+    call_type = fields.Selection([('call','Call'),('pm','PM'),
+                                  ('install','Installation'),('assist','Assistance')],default='call')
 
     @api.onchange('category',"bank_name",'model','location')
     def _onchange_category(self):
@@ -91,14 +93,15 @@ class MaintenanceRequests(models.Model):
             if record.work_start_time and record.work_end_time:
                 work_end_time = datetime.strptime(record.work_start_time, '%Y-%m-%d %H:%M:%S')
                 work_start_time = datetime.strptime(record.work_end_time, '%Y-%m-%d %H:%M:%S')
-                self.consumed_time = abs((work_start_time - work_end_time).days)
+                day = (work_start_time - work_end_time).days
+                hour = (work_start_time - work_end_time).seconds//3600
+                minute = ((work_start_time - work_end_time).seconds%3600)//60
+                self.consumed_time = str(day)+" "+ str(hour)+':'+str(minute)
 
     @api.model
     def equipment_warranty(self):
         # contract_object = self.env['equipment.contract'].search([('state', '=', 'valid')])
-
         if self.status == 'warranty':
-            # self.equipment_id.warranty_start = self.work_end_time
             self.equipment_id.write({
                 'warranty_start' : self.work_end_time,
                 'has_warranty': 'yes',
@@ -108,10 +111,8 @@ class MaintenanceRequests(models.Model):
             # first of all get users
             self.env.cr.execute(
                 '''SELECT uid FROM res_groups_users_rel WHERE gid = %s order by uid''' % (group_manager))
-            print("ppppppppppppppppp", group_manager)
             for fm in list(filter(lambda x: (
                     self.env['res.users'].sudo().search([('id', '=', x)])), self.env.cr.fetchall())):
-                print("lllllllllllll", fm)
                 vals = {
                     'activity_type_id': self.env['mail.activity.type'].sudo().search([],
                                                                                      limit=1).id,
@@ -120,7 +121,7 @@ class MaintenanceRequests(models.Model):
                         [('model', '=', 'maintenance.equipment')],
                         limit=1).id,
                     'user_id': fm[0] or 1,
-                    'summary': " The Contarct of  " + self.equipment_id.name + ' has been new warranty'
+                    'summary': " The Contract of  " + self.equipment_id.name + ' has been new warranty'
                 }
                 self.env['mail.activity'].sudo().create(vals)
 
@@ -128,11 +129,8 @@ class MaintenanceRequests(models.Model):
 
     @api.multi
     def button_stock_picking(self):
-
         if self.spar_part_id:
-            print(50 * '#')
             self._create_picking()
-            self._create_sale_order()
         if self.state == 'engineer':
             self.equipment_warranty()
             self.state = 'done'
@@ -198,8 +196,6 @@ class MaintenanceRequests(models.Model):
             res_techinicain = order._prepare_picking_technician()
             picking_stock = StockPicking.create(res_stock)
             picking_technician = StockPicking.create(res_techinicain)
-            print(picking_stock)
-            print(picking_technician)
             moves_stock = order.spar_part_id._create_stock_moves(picking_stock, None)
             moves_stock = moves_stock.filtered(lambda x: x.state not in ('done', 'cancel'))
             seq = 0
@@ -252,7 +248,7 @@ class Spar_part(models.Model):
     product_id = fields.Many2one('product.product', stirng='Service', required=True)
     description = fields.Char('Description', related='product_id.name')
     qty = fields.Float('Requested Qty', default=1)
-    spar_source = fields.Selection([('technician', 'Technician')])
+    spar_source = fields.Selection([('technician', 'Technician')],default='technician')
     location_id = fields.Many2one('stock.location', string='Source Location', readonly=True)
     location_dest_id = fields.Many2one('stock.location', string='Source Dist Location', readonly=True)
     stock_spar = fields.Boolean('From Stock', defualt=False)
