@@ -2,6 +2,18 @@
 <odoo>
     <data>
 
+        <record id="res_partner_inherit_form_view" model="ir.ui.view">
+            <field name="name">res_partner add bank</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form" />
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <field name="lang" position="after">
+                    <field name="is_bank"/>
+                </field>
+            </field>
+        </record>
+
 
         <record id="view_inhereted_maintenance_request_form" model="ir.ui.view">
             <field name="name">maintenance</field>
@@ -31,7 +43,7 @@
                 <xpath expr="//field[@name='equipment_id']" position="before">
                     <field name="call_date"/>
                     <field name="category" options="{'no_create': True}" required="1"/>
-                    <field name="bank_name" domain="[('customer','=',True),('category_id','=','1')]"
+                    <field name="bank_name" domain="[('customer','=',True),('is_bank','=',True)]"
                            context="{'search_default_customer':1, 'show_address': 1}"
                            options="{'no_create': True}" required="1"/>
 
@@ -145,16 +157,16 @@
             <field name="model">maintenance.equipment</field>
             <field name="inherit_id" ref="maintenance.hr_equipment_view_form"/>
             <field name="arch" type="xml">
-<!--                <xpath expr="//sheet" position="before">-->
-<!--                    <header>-->
+                <!--                <xpath expr="//sheet" position="before">-->
+                <!--                    <header>-->
 
-<!--                        <button name="button_state" string="Engineer Confirm" type="object"-->
-<!--                                class="oe_highlight"-->
-<!--                                attrs="{'invisible':[('state','in',('done'))]}"/>-->
-<!--                        <field name="state" widget="statusbar" statusbar_visible="draft,inprogress,done"/>-->
-<!--                    </header>-->
+                <!--                        <button name="button_state" string="Engineer Confirm" type="object"-->
+                <!--                                class="oe_highlight"-->
+                <!--                                attrs="{'invisible':[('state','in',('done'))]}"/>-->
+                <!--                        <field name="state" widget="statusbar" statusbar_visible="draft,inprogress,done"/>-->
+                <!--                    </header>-->
 
-<!--                </xpath>-->
+                <!--                </xpath>-->
                 <field name="partner_id" position="replace"/>
                 <xpath expr="//field[@name='maintenance_team_id']" position="after">
 
@@ -162,7 +174,7 @@
 
                 <field name="model" position="replace">
                     <field name="model" required="1" options="{'no_create': True}"/>
-                    <field name="partner_id" domain="[('customer','=',True),('category_id','=','1')]" required="1"/>
+                    <field name="partner_id" domain="[('customer','=',True),('is_bank','=',True)]" required="1"/>
                     <field name="city" required="1"  options="{'no_create': True}"/>
                     <field name="location1" domain="[('city','=',city)]"  required="1" options="{'no_create': True}"/>
                 </field>
@@ -174,7 +186,7 @@
                 <field name="cost" position="replace"/>
                 <field name="serial_no" position="replace"/>
                 <field name="equipment_assign_to" position="replace">
-                     <field name="equipment_assign_to" required="1"/>
+                    <field name="equipment_assign_to" required="1"/>
                     <field name="serial_no" required="1"/>
                 </field>
                 <field name="assign_date" position="replace"/>
@@ -196,39 +208,39 @@
 
     </data>
 
-      <record id="view_cityiesAndLocations" model="ir.ui.view">
+    <record id="view_cityiesAndLocations" model="ir.ui.view">
 
-            <field name="name">Cityies and locations</field>
-            <field name="model">equipments.city</field>
-            <field name="arch" type="xml">
-                <tree string="City">
+        <field name="name">Cityies and locations</field>
+        <field name="model">equipments.city</field>
+        <field name="arch" type="xml">
+            <tree string="City">
+                <field name="name"/>
+                <field name="code"/>
+            </tree>
+        </field>
+    </record>
+    <record id="view_cityiesAndLocations_forms" model="ir.ui.view">
+
+        <field name="name">Cityies and locations</field>
+        <field name="model">equipments.city</field>
+        <field name="arch" type="xml">
+            <form string="City">
+                <group col="4">
                     <field name="name"/>
                     <field name="code"/>
-                </tree>
-            </field>
-      </record>
-      <record id="view_cityiesAndLocations_forms" model="ir.ui.view">
+                </group>
+                <label string="Locations"/>
+                <br/>
+                <field name="locations" >
+                    <tree editable="top">
+                        <field name="name"/>
+                        <field name="code"/>
+                    </tree>
+                </field>
 
-            <field name="name">Cityies and locations</field>
-            <field name="model">equipments.city</field>
-            <field name="arch" type="xml">
-                <form string="City">
-                    <group col="4">
-                    <field name="name"/>
-                    <field name="code"/>
-                    </group>
-                    <label string="Locations"/>
-                    <br/>
-                    <field name="locations" >
-                        <tree editable="top">
-                            <field name="name"/>
-                            <field name="code"/>
-                        </tree>
-                    </field>
-
-                </form>
-            </field>
-      </record>
+            </form>
+        </field>
+    </record>
 
     <record id="action_locations" model="ir.actions.act_window">
         <field name="name">Locations</field>

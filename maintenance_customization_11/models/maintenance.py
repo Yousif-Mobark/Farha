@@ -261,13 +261,13 @@ class Spar_part(models.Model):
         """
         location = self.env.ref('stock.stock_location_customers')
         for rec in self:
-            if rec.spar_source == 'stock' and rec.warranty == False:
-                rec.location_id = rec.maintenance_request_id.picking_type_id.default_location_src_id.id \
-                                  or location.id,
-                rec.location_dest_id = rec.maintenance_request_id.picking_type_id.default_location_dest_id.id or location.id
-            elif rec.spar_source == 'technician' and rec.warranty == False:
-                rec.location_id = rec.maintenance_request_id.employee_id.location_id.id or location.id
-                rec.location_dest_id = rec.maintenance_request_id.picking_type_id.default_location_dest_id or location.id
+        #     if rec.spar_source == 'stock' and rec.warranty == False:
+        #         rec.location_id = rec.maintenance_request_id.picking_type_id.default_location_src_id.id \
+        #                           or location.id,
+        #         rec.location_dest_id = rec.maintenance_request_id.picking_type_id.default_location_dest_id.id or location.id
+        #     elif rec.spar_source == 'technician' and rec.warranty == False:
+            rec.location_id = rec.maintenance_request_id.employee_id.location_id.id or location.id
+            rec.location_dest_id = rec.maintenance_request_id.picking_type_id.default_location_dest_id or location.id
 
         res = []
         template = {
@@ -294,11 +294,7 @@ class Spar_part(models.Model):
     def _create_stock_moves(self, picking_stock, picking_technicain):
         moves = self.env['stock.move']
         done = self.env['stock.move'].browse()
-        for line in self.filtered(lambda x: x.spar_source == 'stock' and x.warranty == False):
-            if picking_stock:
-                val = line._prepare_stock_moves(picking_stock)
-        for line in self.filtered(lambda x: x.spar_source == 'technician' and x.warranty == False):
-            print(line.product_id.name)
+        for line in self.filtered(lambda x: x):
             if picking_technicain:
                 val = line._prepare_stock_moves(picking_technicain)
 
@@ -311,36 +307,16 @@ class Spar_part(models.Model):
         """
         location = self.env.ref('stock.stock_location_customers')
         for rec in self:
-            if rec.spar_source == 'stock':
-                rec.location_id = rec.maintenance_request_id.picking_type_id.default_location_src_id.id \
-                                  or location.id,
-                rec.location_dest_id = rec.maintenance_request_id.picking_type_id.default_location_dest_id.id or location.id
-            elif rec.spar_source == 'technician':
-                rec.location_id = rec.maintenance_request_id.employee_id.location_id.id or location.id
-                rec.location_dest_id = rec.maintenance_request_id.picking_type_id.default_location_dest_id.id or location.id
+            # if rec.spar_source == 'stock':
+            #     rec.location_id = rec.maintenance_request_id.picking_type_id.default_location_src_id.id \
+            #                       or location.id,
+            #     rec.location_dest_id = rec.maintenance_request_id.picking_type_id.default_location_dest_id.id or location.id
+            # elif rec.spar_source == 'technician':
+            rec.location_id = rec.maintenance_request_id.employee_id.location_id.id or location.id
+            rec.location_dest_id = rec.maintenance_request_id.picking_type_id.default_location_dest_id.id or location.id
 
         res = []
-        template = {
-            'name': self.product_id.name,
-            'product_id': self.product_id.id,
-            'price_unit': self.product_id.standard_price,
-            'product_uom': self.product_id.uom_id.id,
-            'product_uom_qty': self.qty,
-            'order_id': order_id.id,
-            'location_dest_id': self.location_dest_id.id,
-            'location_id': self.location_id.id,
-            'state': 'draft',
-        }
-        print(self.location_id, self.location_dest_id)
-        return self.env['sale.order.line'].create(template)
 
-    @api.multi
-    def create_sale_order_line(self, order_id):
-        done = self.env['sale.order.line'].browse()
-        # done = self.env['stock.move'].browse()
-        for line in self.filtered(lambda x: x.warranty == True):
-            val = line._prepare_sale_order_line(order_id)
-        return done
 
 
 class Equipments_model(models.Model):
@@ -451,3 +427,7 @@ class StockPickingType(models.Model):
         [('maintenance', 'Maintenance'), ('custody', 'Custody'), ('Manufacturing', 'manufacturing')],
         string="Type",)
 
+class Respartner(models.Model):
+    _inherit="res.partner"
+
+    is_bank= fields.Boolean()
